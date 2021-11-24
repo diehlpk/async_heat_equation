@@ -9,6 +9,20 @@
   thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: ParseIntError { kind: PosOverflow }', src/main.rs:34:39
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
   ```
+  and by exporting `export RUST_BACKTRACE=1` more details of the back trace are printed
+  ```bash
+  thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: ParseIntError { kind: PosOverflow }', src/main.rs:34:39
+stack backtrace:
+   0: rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::result::unwrap_failed
+   3: core::result::Result<T,E>::unwrap
+             at /builddir/build/BUILD/rustc-1.56.1-src/library/core/src/result.rs:1299:23
+   4: rust::main
+             at ./src/main.rs:34:17
+   5: core::ops::function::FnOnce::call_once
+   ``` 
+   This seems to be interesting, since the debugger is included and no external tool as the gdb is needed.
 
 
 ### Neutral features
