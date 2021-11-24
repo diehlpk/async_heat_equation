@@ -15,7 +15,6 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 From fedora:35
-MAINTAINER Patrick Diehl <patrickdiehl1@gmail.com>
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
