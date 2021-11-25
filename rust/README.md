@@ -17,7 +17,7 @@
      |     ^^^^ maybe a missing crate `rand`?
   ```
 
-* Debugging is really convinient, since again the error messages are clear 
+* Debugging is really convenient, since again the error messages are clear 
   ```bash
   thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: ParseIntError { kind: PosOverflow }', src/main.rs:34:39    
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
