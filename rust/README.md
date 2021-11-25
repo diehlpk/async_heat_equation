@@ -10,9 +10,9 @@
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
   ```
   and by exporting `export RUST_BACKTRACE=1` more details of the back trace are printed
-  ```bash
+  <code>
   thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: ParseIntError { kind: PosOverflow }', src/main.rs:34:39
-stack backtrace:
+  stack backtrace:
    0: rust_begin_unwind
    1: core::panicking::panic_fmt
    2: core::result::unwrap_failed
@@ -21,7 +21,7 @@ stack backtrace:
    4: rust::main
              at ./src/main.rs:34:17
    5: core::ops::function::FnOnce::call_once
-   ``` 
+   </code>
    This seems to be interesting, since the debugger is included and no external tool as the gdb is needed.
 
 
