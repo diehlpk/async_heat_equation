@@ -2,7 +2,20 @@
 
 ### Interesting features
 
-* Error messages are 
+* Error messages are easy to read and sometimes hints are provided
+  ```bash
+  error[E0433]: failed to resolve: maybe a missing crate `rand`?
+  --> main.rs:18:5
+     |
+  18 | use rand::distributions::{Distribution, Uniform};
+     |     ^^^^ maybe a missing crate `rand`?
+
+  error[E0432]: unresolved import `rand`
+  --> main.rs:19:5
+     |
+  19 | use rand::thread_rng;
+     |     ^^^^ maybe a missing crate `rand`?
+  ```
 
 * Debugging is really convinient, since again the error messages are clear 
   ```bash
