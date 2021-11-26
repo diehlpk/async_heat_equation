@@ -41,6 +41,7 @@
 ### Neutral features
 
 * There is no global package installation, like [pip](https://pypi.org/project/pip/) for Python. This is the same as for the C++ language, however, Cargo installs all dependencies for each Crate which is comparable to the [virtualenv](https://docs.python.org/3/library/venv.html) in python to avoid global installs and have different versions for each environment. 
+* Strict type checking. 
 
 ### Surprising features
 
