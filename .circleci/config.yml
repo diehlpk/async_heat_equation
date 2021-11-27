@@ -22,7 +22,7 @@ jobs:
         steps:
             - checkout
             - run: cd rust && cargo build --release
-            - run: cd pyhton && python -c "import ast; ast.parse(open('monte.py').read())"
+            - run: cd python && python -c "import ast; ast.parse(open('monte.py').read())"
 workflows:
   version: 2
   build_and_deploy:
