@@ -22,7 +22,6 @@ jobs:
         steps:
             - checkout
             - run: cd rust && cargo build --release
-            - run: cd swift && swift build
 workflows:
   version: 2
   build_and_deploy:

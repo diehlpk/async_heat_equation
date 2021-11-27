@@ -16,7 +16,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-var nc = 0.0
+var ncount = 0.0
 
 // Ask the user for the nummber of iterations
 print("Please enter the number of iterations:")
@@ -25,16 +25,16 @@ let end = Int(readLine()!)!
 // Loop over the iterations
 for _ in 1...end {
 
-    let  x = Double.random(in: 0...1)
-    let y = Double.random(in: 0...1)
-    
-    if (x * x + y * y <= 1.0) {
-        nc += 1
+    let xVar = Double.random(in: 0...1)
+    let yVar = Double.random(in: 0...1)
+ 
+    if (xVar * xVar + yVar * yVar  <= 1.0) {
+        ncount += 1
     }
 }
 
 // Compute the final result
-var pi = 4.0 * nc / Double(end)
+var pi = 4.0 * ncount / Double(end)
 
 // Print the final result
 print(" Pi is equal to \(pi) after \(end) iterations")
