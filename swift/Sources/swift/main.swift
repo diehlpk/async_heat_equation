@@ -1,4 +1,3 @@
-
 // 
 // This file is part of the Monte carlo code exmaples.
 // Copyright (c) 2021 Patrick Diehl

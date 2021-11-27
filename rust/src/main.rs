@@ -1,5 +1,5 @@
 // 
-// This file is part of the Monte carlo code exmaples (https://github.com/xxxx).
+// This file is part of the Monte carlo code exmaples.
 // Copyright (c) 2021 Patrick Diehl
 // 
 // This program is free software: you can redistribute it and/or modify  
