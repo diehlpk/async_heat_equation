@@ -18,4 +18,4 @@ From fedora:35
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install rust cargo g++ python  -y
+RUN dnf install rust cargo g++ python golang  -y
