@@ -2,7 +2,8 @@
 
 ### Interesting features
 
-* Swift programming felt like Python programming since the syntax looks similar. With some Python knowledge it was quite easy to learn the new language. 
+* Swift programming felt like Python programming since the syntax looks similar. With some Python knowledge it was quite easy to learn the new language.
+* The [swift standard library](https://developer.apple.com/documentation/swift/swift_standard_library) has some decent functionality.  
 
 ### Neutral features
 
