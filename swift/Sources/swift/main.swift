@@ -1,4 +1,3 @@
-// 
 // This file is part of the Monte carlo code exmaples.
 // Copyright (c) 2021 Patrick Diehl
 // 
@@ -13,7 +12,6 @@
 //
 // You should have received a copy of the GNU General Public License 
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
-//
 
 var ncount = 0.0
 
@@ -27,13 +25,13 @@ for _ in 1...end {
     let xVar = Double.random(in: 0...1)
     let yVar = Double.random(in: 0...1)
  
-    if (xVar * xVar + yVar * yVar  <= 1.0) {
+    if xVar * xVar + yVar * yVar  <= 1.0 {
         ncount += 1
     }
 }
 
 // Compute the final result
-var pi = 4.0 * ncount / Double(end)
+var pi_estimate = 4.0 * ncount / Double(end)
 
 // Print the final result
-print(" Pi is equal to \(pi) after \(end) iterations")
+print(" Pi is equal to \(pi_estimate) after \(end) iterations")
