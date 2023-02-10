@@ -8,7 +8,8 @@ import numpy as np
 import sys
 import time
 import concurrent.futures
-from pypapi import events, papi_high as high
+if sys.argv[4] == 1:
+    from pypapi import events, papi_high as high
 
 nx = int(sys.argv[3])        # number of nodes
 k = 0.5                      # heat transfer coefficient
@@ -64,14 +65,18 @@ async def main(loop,executor):
          
 
 if __name__ == "__main__":
-    high.start_counters([events.PAPI_FP_OPS,])
+
+    if sys.argv[4] == 1:
+        high.start_counters([events.PAPI_FP_OPS,])
     start_time = time.time()
-    executor = concurrent.futures.ProcessPoolExecutor(max_workers=10)
+    executor = concurrent.futures.ProcessPoolExecutor(max_workers=threads)
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(main(loop,executor))
     finally:
         loop.close()
-        x=high.stop_counters()
-    print("time:",threads,time.time() - start_time,nx,x)
-                                            
+        if sys.argv[4] == 1:
+            x=high.stop_counters()
+            print(str(threads)+","+str(time.time() - start_time)+","+str(x))
+        else:
+            print(str(threads)+","+str(time.time() - start_time))
