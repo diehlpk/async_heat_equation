@@ -1,3 +1,8 @@
+#  Copyright (c) 2023 AUTHORS
+#
+#  SPDX-License-Identifier: BSL-1.0
+#  Distributed under the Boost Software License, Version 1.0. (See accompanying
+#  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 import asyncio
 import numpy as np
 import sys
@@ -6,11 +11,11 @@ import concurrent.futures
 from pypapi import events, papi_high as high
 
 nx = int(sys.argv[3])        # number of nodes
-k = 0.5        # heat transfer coefficient
-dt = 1.        # time step
-dx = 1.        # grid spacing
-nt = int(sys.argv[2])         # number of time steps
-threads = int(sys.argv[1])           # numnber of threads
+k = 0.5                      # heat transfer coefficient
+dt = 1.                      # time step
+dx = 1.                      # grid spacing
+nt = int(sys.argv[2])        # number of time steps
+threads = int(sys.argv[1])   # numnber of threads
 
 def idx(i, direction):
 
