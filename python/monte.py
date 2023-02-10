@@ -12,15 +12,14 @@ end = int(input("Please enter the number of iterations:"))
 
 #  Loop over the iterations
 for _ in range(end):
-    xVar = random.uniform(0,1)
-    yVar = random.uniform(0,1)
+    xVar = random.uniform(0, 1)
+    yVar = random.uniform(0, 1)
 
     if xVar * xVar + yVar * yVar <= 1:
-        ncount +=1 
+        ncount += 1
 
 # Compute the final result
 pi = 4.0 * ncount / end
 
 # Print the final result
 print(" Pi is equal to " + str(pi) + " after " + str(end) + " iterations")
-

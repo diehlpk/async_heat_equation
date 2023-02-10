@@ -18,6 +18,7 @@ dx = 1.                      # grid spacing
 nt = int(sys.argv[2])        # number of time steps
 threads = int(sys.argv[1])   # numnber of threads
 
+
 def idx(i, direction):
 
     if i == 0 and direction == -1:
@@ -29,40 +30,43 @@ def idx(i, direction):
 
     return i + direction
 
-def heat(left,middle,right):
 
-    return middle + (k * dt / (dx * dx)) * (left - 2 * middle + right);
+def heat(left, middle, right):
 
-def work(future,current,p):
+    return middle + (k * dt / (dx * dx)) * (left - 2 * middle + right)
+
+
+def work(future, current, p):
     length = int(nx / threads)
     start = p * length
     end = (p+1) * length
-    
+
     if p == threads-1:
         end = nx
 
-    for i in range(start,end):
+    for i in range(start, end):
         future[i] = heat(current[idx(i, -1)],
-                        current[i], current[idx(i, +1)])
+                         current[i], current[idx(i, +1)])
 
     return None
 
-async def main(loop,executor):
-    space = [np.zeros(nx),np.zeros(nx)]
-    
-    for i in range(0,nx):
+
+async def main(loop, executor):
+    space = [np.zeros(nx), np.zeros(nx)]
+
+    for i in range(0, nx):
         space[0][i] = i
 
-    
-    for t in range(0,nt):
-        current = space[t %2]
+    for t in range(0, nt):
+        current = space[t % 2]
         future = space[(t+1) % 2]
 
-        futures = [loop.run_in_executor(executor,work,future,current,p) for p in range(threads)]
-        
+        futures = [loop.run_in_executor(
+            executor, work, future, current, p) for p in range(threads)]
+
         for f in asyncio.as_completed(futures):
             result = await f
-         
+
 
 if __name__ == "__main__":
 
@@ -72,11 +76,11 @@ if __name__ == "__main__":
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=threads)
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(main(loop,executor))
+        loop.run_until_complete(main(loop, executor))
     finally:
         loop.close()
         if sys.argv[4] == 1:
-            x=high.stop_counters()
+            x = high.stop_counters()
             print(str(threads)+","+str(time.time() - start_time)+","+str(x))
         else:
             print(str(threads)+","+str(time.time() - start_time))
