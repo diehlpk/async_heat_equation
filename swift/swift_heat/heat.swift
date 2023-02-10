@@ -12,7 +12,7 @@ let dx = 1.0                        // grid spacing
 let nt = Int(C_ARGV[2]) ?? -1        // number of time steps
 let threads = Int(C_ARGV[1]) ?? -1  // numnber of threads
 
-func idx(i: Int, direction: Int) -> Int {
+func idx(_ i: Int,_  direction: Int) -> Int {
 
     if (i == 0 && direction == -1)
     { 
@@ -31,4 +31,20 @@ func idx(i: Int, direction: Int) -> Int {
 func heat(left: Double, middle: Double, right: Double) -> Double
 {
     return middle + (k * dt / (dx * dx)) * (left - 2 * middle + right)
+}
+
+func work(future: inout [Double], current: [Double], p: Int, threads: Int)
+{
+    let length = Int(nx / threads)
+    let start = p * length
+    var end = (p+1) * length
+
+    if (p == threads-1)
+    {    end = nx }
+
+    for i in start ... end
+    {    
+         future[i] = heat(left : current[idx(i,-1)], middle :
+                         current[i], right :  current[idx(i,+1)])
+    }
 }
