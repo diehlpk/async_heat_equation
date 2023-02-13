@@ -3,6 +3,8 @@
 //  SPDX-License-Identifier: BSL-1.0
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+import Foundation
+
 let C_ARGV = CommandLine.arguments
 
 let nx = Int(C_ARGV[3]) ?? -1        // number of nodes
@@ -33,18 +35,59 @@ func heat(left: Double, middle: Double, right: Double) -> Double
     return middle + (k * dt / (dx * dx)) * (left - 2 * middle + right)
 }
 
-func work(future: inout [Double], current: [Double], p: Int, threads: Int)
+func work(_ current: [Double], _ p: Int, _ threads: Int) async -> [Double] 
 {
     let length = Int(nx / threads)
     let start = p * length
-    var end = (p+1) * length
+    var end = (p+1) * length - 1
+    var future = Array(repeating: 0.0 , count: length)
 
-    if (p == threads-1)
-    {    end = nx }
+    if (p == threads-1 )
+    {    end = nx - 1 }
 
+    var index = 0
     for i in start ... end
-    {    
-         future[i] = heat(left : current[idx(i,-1)], middle :
-                         current[i], right :  current[idx(i,+1)])
+    {   
+        future[index] = heat(left : current[idx(i,-1)], middle :
+            current[i], right :  current[idx(i,+1)])
+        index = index + 1
     }
+    return future
 }
+
+var space = [Array(repeating: 0.0,count: nx), Array(repeating: 0.0, count: nx)]
+
+for i in 0 ... (nx-1) 
+{   
+    space[0][i] = Double(i)
+}
+
+for t in 0 ... (nt-1)
+{
+    let current = space[t % 2]
+    var future = space[(t+1) % 2]
+
+    await withTaskGroup(of : [Double].self, returning: Void.self, body: {
+    
+    group in
+
+    for p in 0 ... (threads-1)
+    {
+    group.addTask { await  work(current,p,threads)   }
+    }
+
+    future.removeAll()
+
+    for await t in group {
+
+        for e in t {
+        future.append(e)
+}
+        }
+
+    }
+    )
+
+}
+
+print(space[(nt-1)%2])
