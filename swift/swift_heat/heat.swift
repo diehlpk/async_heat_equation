@@ -71,7 +71,7 @@ for i in 0...(nx - 1) {
   current[i] = Double(i)
 }
 
-for t in 0...(nt - 1) {
+for _ in 0...(nt - 1) {
 
   await withTaskGroup(
     of: [Double].self, returning: Void.self,
