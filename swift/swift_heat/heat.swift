@@ -16,19 +16,17 @@ let threads = Int(C_ARGV[1]) ?? -1  // numnber of threads
 
 actor mesh {
 
-private var space = Array(repeating: 0.0, count: nx)
+  private var space = Array(repeating: 0.0, count: nx)
 
-func set_value( _ index : Int, _ value : Double)
-{
- space[index] = value
-}
+  func set_value(_ index: Int, _ value: Double) {
+    space[index] = value
+  }
 
-func get_values() -> [Double]   {
+  func get_values() -> [Double] {
     return space
-}
+  }
 
 }
-
 
 func idx(_ i: Int, _ direction: Int) -> Int {
 
@@ -68,7 +66,7 @@ func work(_ current: [Double], _ p: Int, _ threads: Int) async -> [Double] {
 }
 
 var current = Array(repeating: 0.0, count: nx)
-let future =  mesh()
+let future = mesh()
 for i in 0...(nx - 1) {
   current[i] = Double(i)
 }
@@ -85,18 +83,16 @@ for t in 0...(nt - 1) {
         group.addTask { await work(current, p, threads) }
       }
 
-
       for await result in group {
 
-        var i = 0 
+        var i = 0
         for e in result {
-          await future.set_value(i,e)
+          await future.set_value(i, e)
           i = i + 1
         }
       }
 
     }
   )
-  await current = future.get_values();
+  await current = future.get_values()
 }
-
