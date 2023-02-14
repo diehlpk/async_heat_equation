@@ -74,10 +74,6 @@ for i in 0...(nx - 1) {
 }
 
 for t in 0...(nt - 1) {
-  //let current = space[t % 2]
-  //var future = space[(t + 1) % 2] 
-
-  //print(t % 2 , (t+1) % 2 )
 
   await withTaskGroup(
     of: [Double].self, returning: Void.self,
@@ -92,7 +88,6 @@ for t in 0...(nt - 1) {
 
       for await result in group {
 
-        print("after",t)
         var i = 0 
         for e in result {
           await future.set_value(i,e)
@@ -103,6 +98,5 @@ for t in 0...(nt - 1) {
     }
   )
   await current = future.get_values();
-  print(current)
 }
 
