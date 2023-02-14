@@ -14,6 +14,22 @@ let dx = 1.0  // grid spacing
 let nt = Int(C_ARGV[2]) ?? -1  // number of time steps
 let threads = Int(C_ARGV[1]) ?? -1  // numnber of threads
 
+actor mesh {
+
+private var space = Array(repeating: 0.0, count: nx)
+
+func set_value( _ index : Int, _ value : Double)
+{
+ space[index] = value
+}
+
+func get_values() -> [Double]   {
+    return space
+}
+
+}
+
+
 func idx(_ i: Int, _ direction: Int) -> Int {
 
   if i == 0 && direction == -1 {
@@ -51,15 +67,17 @@ func work(_ current: [Double], _ p: Int, _ threads: Int) async -> [Double] {
   return future
 }
 
-var space = [Array(repeating: 0.0, count: nx), Array(repeating: 0.0, count: nx)]
-
+var current = Array(repeating: 0.0, count: nx)
+let future =  mesh()
 for i in 0...(nx - 1) {
-  space[0][i] = Double(i)
+  current[i] = Double(i)
 }
 
 for t in 0...(nt - 1) {
-  let current = space[t % 2]
-  var future = space[(t + 1) % 2]
+  //let current = space[t % 2]
+  //var future = space[(t + 1) % 2] 
+
+  //print(t % 2 , (t+1) % 2 )
 
   await withTaskGroup(
     of: [Double].self, returning: Void.self,
@@ -71,18 +89,20 @@ for t in 0...(nt - 1) {
         group.addTask { await work(current, p, threads) }
       }
 
-      future.removeAll()
 
-      for await t in group {
+      for await result in group {
 
-        for e in t {
-          future.append(e)
+        print("after",t)
+        var i = 0 
+        for e in result {
+          await future.set_value(i,e)
+          i = i + 1
         }
       }
 
     }
   )
-
+  await current = future.get_values();
+  print(current)
 }
 
-print(space[(nt - 1) % 2])
