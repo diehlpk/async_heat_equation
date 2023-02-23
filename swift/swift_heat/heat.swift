@@ -47,27 +47,6 @@ func idx(_ i: Int, _ direction: Int) -> Int {
 func heat(left: Double, middle: Double, right: Double) -> Double {
   return middle + (k * dt / (dx * dx)) * (left - 2 * middle + right)
 }
-/*
-func work(_ current: [Double], _ p: Int, _ threads: Int) async -> [Double] {
-  let length = Int(nx / threads)
-  let start = p * length
-  var end = (p + 1) * length - 1
-  var future = Array(repeating: 0.0, count: length)
-
-  if p == threads - 1 { end = nx - 1 }
-
-  var index = 0
-  for i in start...end {
-    future[index] = heat(
-      left: current[idx(i, -1)],
-      middle:
-        current[i], right: current[idx(i, +1)])
-    index = index + 1
-  }
-  return future
-}
-*/
-
 
 var current = Array(repeating: 0.0, count: nx)
 let future = mesh()
@@ -84,27 +63,26 @@ for _ in 0...(nt - 1) {
       group in
 
       for p in 0...(threads - 1) {
-        group.addTask { 
+        group.addTask {
 
           let length = Int(nx / threads)
-  let start = p * length
-  var end = (p + 1) * length - 1
-  var future = Array(repeating: 0.0, count: length)
+          let start = p * length
+          var end = (p + 1) * length - 1
+          var future = Array(repeating: 0.0, count: length)
 
-  if p == threads - 1 { end = nx - 1 }
+          if p == threads - 1 { end = nx - 1 }
 
-  var index = 0
-  for i in start...end {
-    future[index] = await heat(
-      left: current[idx(i, -1)],
-      middle:
-        current[i], right: current[idx(i, +1)])
-    index = index + 1
-  }
-  return future          
+          var index = 0
+          for i in start...end {
+            future[index] = await heat(
+              left: current[idx(i, -1)],
+              middle:
+                current[i], right: current[idx(i, +1)])
+            index = index + 1
+          }
+          return future
 
-
-         }
+        }
       }
 
       for await result in group {
@@ -121,5 +99,4 @@ for _ in 0...(nt - 1) {
   await current = future.get_values()
 }
 
-
- print("Elapsed time: \(-start.timeIntervalSinceNow) seconds")
+print("Elapsed time: \(-start.timeIntervalSinceNow) seconds")
