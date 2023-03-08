@@ -8,6 +8,7 @@ import numpy as np
 import sys
 import time
 import concurrent.futures
+import os
 if sys.argv[4] == 1:
     from pypapi import events, papi_high as high
 
@@ -80,7 +81,15 @@ if __name__ == "__main__":
     finally:
         loop.close()
         if sys.argv[4] == 1:
-            x = high.stop_counters()
-            print(str(threads)+","+str(time.time() - start_time)+","+str(x))
+            hw = high.stop_counters()
         else:
-            print(str(threads)+","+str(time.time() - start_time))
+            hw = 0
+        fn = 'perfdata.csv'
+        if not os.path.exists(fn):
+            with open(fn,"w") as fd:
+                print('lang,nx,nt,threads,dt,dx,total time,flops',file=fd)
+        with open("perfdata.csv","a") as fd:
+            tdiff = time.time() - start_time
+            print(",".join(
+                [str(x) for x in ['python', nx, nt, threads, dx, dt, tdiff, hw]]
+            ),file=fd)
