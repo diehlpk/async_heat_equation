@@ -29,7 +29,6 @@ actor mesh {
   }
 }
 
-
 func idx(_ i: Int, _ direction: Int) -> Int {
 
   if i == 0 && direction == -1 {
@@ -44,7 +43,6 @@ func idx(_ i: Int, _ direction: Int) -> Int {
 
 }
 
-
 var current = Array(repeating: 0.0, count: nx)
 let future = mesh()
 for i in 0...(nx - 1) {
@@ -55,7 +53,7 @@ for _ in 0...(nt - 1) {
 
   await withTaskGroup(
     of: [Double].self, returning: Void.self,
-    body: { group  in
+    body: { group in
 
       for p in 0...(threads - 1) {
 
@@ -69,12 +67,11 @@ for _ in 0...(nt - 1) {
           if p == threads - 1 { end = nx - 1 }
 
           var index = 0
-        
+
           for i in start...end {
 
-            future[index] = 
-            await
-              (current[i] + (k * dt / (dx * dx)) * (current[0] - 2 * current[i] + current[1]))
+            future[index] =
+              await (current[i] + (k * dt / (dx * dx)) * (current[0] - 2 * current[i] + current[1]))
 
             index = index + 1
           }
@@ -84,7 +81,7 @@ for _ in 0...(nt - 1) {
         }
 
       }
-       for await result in group {
+      for await result in group {
 
         var i = 0
         for e in result {
@@ -95,9 +92,8 @@ for _ in 0...(nt - 1) {
 
     })
 
-     await current = future.get_values()
+  await current = future.get_values()
 
-  
 }
 
 print("Elapsed time: \(-start.timeIntervalSinceNow) seconds")
