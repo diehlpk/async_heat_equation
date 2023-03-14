@@ -36,7 +36,7 @@ for name in xdata:
         
     if len(xv) > 3:
         try:
-            r = cf(rt,xv,yv,maxfev=5000)
+            r = cf(rt,xv,yv,maxfev=5000,p0=(1,1,0),bounds=((0,0,0),(np.inf,1,1)))
         except:
             print("Could not fit curve for:",name)
             continue
