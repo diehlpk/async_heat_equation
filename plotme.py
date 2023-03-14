@@ -32,7 +32,7 @@ for name in xdata:
     plt.semilogy(xv,yv,'o',label=name)
 
     def rt(x, k, p, o):
-        return k*(np.cos(p)**2 + np.sin(p)**2/x + o*x)
+        return k*(1-p + p/x + o*x)
         
     if len(xv) > 3:
         try:
@@ -41,12 +41,11 @@ for name in xdata:
             print("Could not fit curve for:",name)
             continue
         k=r[0][0]
-        p=r[0][1]
+        par=r[0][1]
         o=r[0][2]
-        par=np.sin(p)**2
         print("For ",name,": Parallel=","%.2g" % par," and Overhead=","%.2g" % o," using ",len(xv)," data pts.",sep='')
         xv2 = np.asarray(range(1,round(1+max(xdata[name]))))
-        yv2 = rt(xv2,k,p,o)
+        yv2 = rt(xv2,k,par,o)
         plt.semilogy(xv2,yv2,'-',label='fit '+name)
 plt.legend()
 plt.show()
