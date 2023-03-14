@@ -45,9 +45,10 @@ def work(future, current, p):
     if p == threads-1:
         end = nx
 
+    n = len(current)
     for i in range(start, end):
-        future[i] = heat(current[idx(i, -1)],
-                         current[i], current[idx(i, +1)])
+        future[i] = heat(current[(i-1)%n],
+                         current[i], current[(i+1)%n])
 
     return None
 
