@@ -18,15 +18,15 @@ let threads = Int(C_ARGV[1]) ?? -1  // numnber of threads
 
 actor mesh {
 
-private var space = Array(repeating: 0.0, count: nx)
+  private var space = Array(repeating: 0.0, count: nx)
 
-func set_value(_ index: Int, _ value : Double){
-  space[index] = value
-}
+  func set_value(_ index: Int, _ value: Double) {
+    space[index] = value
+  }
 
-func get_values() -> [Double] {
-  return space
-}
+  func get_values() -> [Double] {
+    return space
+  }
 }
 
 func idx(_ i: Int, _ direction: Int) -> Int {
