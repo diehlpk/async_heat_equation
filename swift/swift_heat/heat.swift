@@ -16,6 +16,19 @@ let dx = 1.0  // grid spacing
 let nt = Int(C_ARGV[2]) ?? -1  // number of time steps
 let threads = Int(C_ARGV[1]) ?? -1  // numnber of threads
 
+actor mesh {
+
+private var space = Array(repeating: 0.0, count: nx)
+
+func set_value(_ index: Int, _ value : Double){
+  space[index] = value
+}
+
+func get_values() -> [Double] {
+  return space
+}
+}
+
 func idx(_ i: Int, _ direction: Int) -> Int {
 
   if i == 0 && direction == -1 {
