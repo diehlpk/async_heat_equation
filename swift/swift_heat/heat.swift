@@ -96,4 +96,4 @@ for _ in 0...(nt - 1) {
 
 }
 
-print("Elapsed time: \(-start.timeIntervalSinceNow) seconds")
+print("swift,\(nx),\(nt),\(threads),\(dt),\(dx),\(-start.timeIntervalSinceNow)")
