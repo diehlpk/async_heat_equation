@@ -35,7 +35,11 @@ for name in xdata:
         return k*(np.cos(p)**2 + np.sin(p)**2/x + o*x)
         
     if len(xv) > 3:
-        r = cf(rt,xv,yv)
+        try:
+            r = cf(rt,xv,yv,maxfev=5000)
+        except:
+            print("Could not fit curve for:",name)
+            continue
         k=r[0][0]
         p=r[0][1]
         o=r[0][2]
