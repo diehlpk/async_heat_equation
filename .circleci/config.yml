@@ -21,7 +21,8 @@ jobs:
           - image: diehlpk/monte-carlo-codes:latest
         steps:
             - checkout
-            - run: cd rust && cargo build --release
+            - run: cd rust/monte && cargo build --release
+            - run: cd rust/heat && cargo build --release
             - run: cd python && python -c "import ast; ast.parse(open('monte.py').read())"
             - run: cd python && python -c "import ast; ast.parse(open('heat.py').read())"
 workflows:
