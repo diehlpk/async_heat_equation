@@ -20,3 +20,4 @@ RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
 RUN dnf install g++ python golang  -y
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+ENV PATH="/root/.cargo/bin:${PATH}"
