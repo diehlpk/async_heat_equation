@@ -108,13 +108,15 @@ impl State {
             handles.push(spawn(move || {
                 let mut part = part.lock().unwrap();
                 let len = part[0].len();
+                let left_rx = left_rx.lock().unwrap();
+                let right_rx = right_rx.lock().unwrap();
 
                 for t in 0..nt {
                     left_tx.send(part[current_idx(t)][0]).unwrap();
                     right_tx.send(part[current_idx(t)][len - 1]).unwrap();
 
                     part[aux_idx(t)][0] = heat(
-                        recv(&left_rx),
+                        left_rx.recv().unwrap(),
                         part[current_idx(t)][0],
                         part[current_idx(t)][1],
                     );
@@ -122,7 +124,7 @@ impl State {
                     part[aux_idx(t)][len - 1] = heat(
                         part[current_idx(t)][len - 2],
                         part[current_idx(t)][len - 1],
-                        recv(&right_rx),
+                        right_rx.recv().unwrap(),
                     );
 
                     for idx in 1..len - 1 {
@@ -178,8 +180,4 @@ pub fn current_idx(t: usize) -> usize {
 #[inline]
 pub fn aux_idx(t: usize) -> usize {
     (t + 1) % 2
-}
-
-fn recv(rx: &Arc<Mutex<Rx>>) -> f64 {
-    rx.lock().unwrap().recv().unwrap()
 }
