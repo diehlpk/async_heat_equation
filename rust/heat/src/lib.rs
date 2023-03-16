@@ -90,15 +90,15 @@ impl State {
             let right_tx = self.right_ghosts[i].0.clone();
 
             let left_rx = if i == 0 {
-                None
+                Arc::clone(&self.right_ghosts[self.threads - 1].1)
             } else {
-                Some(Arc::clone(&self.right_ghosts[i - 1].1))
+                Arc::clone(&self.right_ghosts[i - 1].1)
             };
 
             let right_rx = if i == self.threads - 1 {
-                None
+                Arc::clone(&self.left_ghosts[0].1)
             } else {
-                Some(Arc::clone(&self.left_ghosts[i + 1].1))
+                Arc::clone(&self.left_ghosts[i + 1].1)
             };
 
             let nt = self.nt;
@@ -114,7 +114,7 @@ impl State {
                     right_tx.send(part[current_idx(t)][len - 1]).unwrap();
 
                     part[aux_idx(t)][0] = heat(
-                        opt_recv(&left_rx),
+                        recv(&left_rx),
                         part[current_idx(t)][0],
                         part[current_idx(t)][1],
                     );
@@ -122,7 +122,7 @@ impl State {
                     part[aux_idx(t)][len - 1] = heat(
                         part[current_idx(t)][len - 2],
                         part[current_idx(t)][len - 1],
-                        opt_recv(&right_rx),
+                        recv(&right_rx),
                     );
 
                     for idx in 1..len - 1 {
@@ -180,6 +180,6 @@ pub fn aux_idx(t: usize) -> usize {
     (t + 1) % 2
 }
 
-fn opt_recv(o: &Option<Arc<Mutex<Rx>>>) -> f64 {
-    o.as_ref().map_or_else(|| Ok(0.0), |rx| rx.lock().unwrap().recv()).unwrap()
+fn recv(rx: &Arc<Mutex<Rx>>) -> f64 {
+    rx.lock().unwrap().recv().unwrap()
 }
