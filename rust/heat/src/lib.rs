@@ -38,7 +38,7 @@ impl State {
         let mut initial_grid: Vec<f64> = Vec::with_capacity(nx);
 
         { // Fill the initial grid with ascending values
-            let mut i = 0_f64;
+            let mut i = -1_f64;
             initial_grid.resize_with(nx, || {
                 i += 1_f64;
                 i
