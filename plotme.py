@@ -21,10 +21,7 @@ with open('perfdata.csv','r',newline='') as cfd:
             ydata[name] = []
         nthreads = float(row[3])
         xdata[name] += [nthreads]
-        if row[0] == "rust":
-            ydata[name] += [float(row[6])*1e-3]
-        else:
-            ydata[name] += [float(row[6])]
+        ydata[name] += [float(row[6])]
 
 import matplotlib.pyplot as plt
 import numpy as np
