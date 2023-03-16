@@ -16,7 +16,7 @@ let dx = 1.0  // grid spacing
 let nt = Int(C_ARGV[2]) ?? -1  // number of time steps
 let threads = Int(C_ARGV[1]) ?? -1  // numnber of threads
 
-var space = [
+let space = [
   UnsafeMutableBufferPointer<Double>.allocate(capacity: nx),
   UnsafeMutableBufferPointer<Double>.allocate(capacity: nx),
 ]
@@ -48,7 +48,7 @@ for t in 0...(nt - 1) {
 
             if i == 0 {
 
-              await space[(t + 1) % 2][i] =
+              space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + (k * dt / (dx * dx))
                     * (space[t % 2][nx - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
