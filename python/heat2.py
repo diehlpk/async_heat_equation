@@ -23,6 +23,7 @@ nt = int(sys.argv[2])        # number of time steps
 threads = int(sys.argv[1])   # numnber of threads
 
 tx = nx//threads
+assert tx > 0
 
 class Worker(Thread):
     def __init__(self,num:int)->None:
@@ -30,32 +31,18 @@ class Worker(Thread):
         self.num : int = num
         self.lo : int = tx*num
         self.hi : int = tx*(num+1)
-        self.right : Optional[Queue[float]]
-        self.left : Optional[Queue[float]]
-        if threads == 1:
-            self.right = None
-            self.left = None
-        elif num+1 == threads:
-            self.hi = nx
-            self.right = None
-            self.left = Queue()
-        elif num == 0:
-            self.left = None
-            self.right = Queue()
-        else:
-            self.left = Queue()
-            self.right = Queue()
+        self.right : Queue[float] = Queue()
+        self.left : Queue[float] = Queue()
         self.sz = self.hi - self.lo
-        self.data = np.random.randn(self.sz)
+        assert self.sz > 0
+        self.data = np.linspace(self.lo, self.hi-1, self.hi - self.lo)
         self.data2 = np.zeros((self.sz,))
-        self.leftThread  : Optional['Worker'] = None
-        self.rightThread : Optional['Worker'] = None
+        self.leftThread  : 'Worker'
+        self.rightThread : 'Worker'
 
     def recv_ghosts(self)->None:
-        if self.left is not None:
-            self.data[0] = self.left.get()
-        if self.right is not None:
-            self.data[-1] = self.right.get()
+        self.data[0] = self.left.get()
+        self.data[-1] = self.right.get()
 
     def update(self)->None:
         self.recv_ghosts()
@@ -66,12 +53,8 @@ class Worker(Thread):
         self.send_ghosts()
 
     def send_ghosts(self)->None:
-        if self.leftThread is not None:
-            assert self.leftThread.right is not None
-            self.leftThread.right.put_nowait(self.data[0])
-        if self.rightThread is not None:
-            assert self.rightThread.left is not None
-            self.rightThread.left.put_nowait(self.data[-1])
+        self.leftThread.right.put_nowait(self.data[0])
+        self.rightThread.left.put_nowait(self.data[-1])
 
     def run(self)->None:
         self.send_ghosts()
@@ -83,9 +66,9 @@ def main()->Tuple[float,float]:
     th = []
     for num in range(threads):
         th += [Worker(num)]
-    for i in range(threads-1):
-        th[i].rightThread = th[i+1]
-        th[i+1].leftThread = th[i]
+    for i in range(threads):
+        th[i].rightThread = th[(i+1) % threads]
+        th[(i+1)%threads].leftThread = th[i]
 
     if use_hw_counters:
         high.start_counters([events.PAPI_FP_OPS,])
