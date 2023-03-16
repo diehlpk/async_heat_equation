@@ -57,7 +57,7 @@ for t in 0...(nt - 1) {
 
             else if i == nx - 1 {
 
-              await space[(t + 1) % 2][i] =
+              space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + (k * dt / (dx * dx))
                     * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][0]))
@@ -66,7 +66,7 @@ for t in 0...(nt - 1) {
 
             else {
 
-              await space[(t + 1) % 2][i] =
+              space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + (k * dt / (dx * dx))
                     * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
@@ -82,6 +82,10 @@ for t in 0...(nt - 1) {
 
     })
 
+}
+
+for i in 0...(nx-1){
+  print(space[0][i],space[1][i])
 }
 
 print("swift,\(nx),\(nt),\(threads),\(dt),\(dx),\(-start.timeIntervalSinceNow)")
