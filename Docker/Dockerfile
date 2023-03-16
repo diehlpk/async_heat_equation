@@ -19,4 +19,4 @@ From fedora:35
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
 RUN dnf install g++ python golang  -y
-RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
