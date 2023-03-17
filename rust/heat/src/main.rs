@@ -29,6 +29,13 @@ fn main() {
 
     println!("Elapsed: {}ms", elapsed.as_millis());
     log_csv(&s, elapsed).expect("Couldn't write perfdata.csv");
+
+    match env::var("dump") {
+        Ok(v) if v == "1" => {
+            dump(&s).expect("Couldn't write dump.csv");
+        }
+        _ => { }
+    }
 }
 
 fn get_arg<F: FromStr>(args: &[String], idx: usize, purpose: &str) -> F
@@ -49,6 +56,14 @@ fn log_csv(s: &State, elapsed: Duration) -> Result<(), Box<dyn Error>> {
     let mut file = OpenOptions::new().append(true).open(file_name)?;
 
     writeln!(&mut file, "rust,{0},{1},{2},{3},{4},{5}", s.get_nx(), s.get_nt(), s.get_threads(), DT, DX, elapsed.as_secs_f64())?;
+
+    Ok(())
+}
+
+fn dump(s: &State) -> Result<(), Box<dyn Error>> {
+    let file_name = Path::new("dump.csv");
+
+    fs::write(file_name, s.collect_space().iter().map(|f| f.to_string()).collect::<Vec<_>>().join(","))?;
 
     Ok(())
 }

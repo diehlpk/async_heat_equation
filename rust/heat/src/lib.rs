@@ -4,6 +4,7 @@
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+use std::mem;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread::spawn;
@@ -17,8 +18,10 @@ pub const DT: f64 = 1.;
 // Grid spacing
 pub const DX: f64 = 1.;
 
+const CONSTANT_HEAT_TERM: f64 = K * DT / (DX * DX);
+
 fn heat(left: f64, middle: f64, right: f64) -> f64 {
-    middle + (K * DT / (DX * DX)) * (left - 2. * middle + right)
+    middle + CONSTANT_HEAT_TERM * (left - 2. * middle + right)
 }
 
 type Tx = Sender<f64>;
@@ -111,29 +114,36 @@ impl State {
                 let left_rx = left_rx.lock().unwrap();
                 let right_rx = right_rx.lock().unwrap();
 
-                for t in 0..nt {
-                    left_tx.send(part[current_idx(t)][0]).unwrap();
-                    right_tx.send(part[current_idx(t)][len - 1]).unwrap();
+                let (current, aux) = part.split_at_mut(1);
 
-                    part[aux_idx(t)][0] = heat(
+                let mut current = &mut current[0];
+                let mut aux = &mut aux[0];
+
+                for _t in 0..nt {
+                    left_tx.send(current[0]).unwrap();
+                    right_tx.send(current[len - 1]).unwrap();
+
+                    aux[0] = heat(
                         left_rx.recv().unwrap(),
-                        part[current_idx(t)][0],
-                        part[current_idx(t)][1],
+                        current[0],
+                        current[1],
                     );
 
-                    part[aux_idx(t)][len - 1] = heat(
-                        part[current_idx(t)][len - 2],
-                        part[current_idx(t)][len - 1],
+                    aux[len - 1] = heat(
+                        current[len - 2],
+                        current[len - 1],
                         right_rx.recv().unwrap(),
                     );
 
                     for idx in 1..len - 1 {
-                        part[aux_idx(t)][idx] = heat(
-                            part[current_idx(t)][idx - 1],
-                            part[current_idx(t)][idx],
-                            part[current_idx(t)][idx + 1]
+                        aux[idx] = heat(
+                            current[idx - 1],
+                            current[idx],
+                            current[idx + 1]
                         );
                     }
+
+                    mem::swap(&mut current, &mut aux);
                 }
             }));
         }
