@@ -153,7 +153,7 @@ impl State {
                 let mut aux = &mut aux[0];
 
                 for _t in 0..nt {
-                    left_tx.send(aux[0]).unwrap();
+                    left_tx.send(current[0]).unwrap();
                     right_tx.send(current[len - 1]).unwrap();
 
                     aux[0] = heat_scalar(
