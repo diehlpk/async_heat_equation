@@ -12,13 +12,13 @@ import time
 import os
 use_hw_counters : bool = sys.argv[4] == "1"
 
-check_correctness = False
+check_correctness = True #False
 
 if use_hw_counters:
     from pypapi import events, papi_high as high
 
 nx = int(sys.argv[3])        # number of nodes
-k = 0.5                      # heat transfer coefficient
+k = 0.4                     # heat transfer coefficient
 dt = 1.                      # time step
 dx = 1.                      # grid spacing
 nt = int(sys.argv[2])        # number of time steps
@@ -52,7 +52,7 @@ class Worker(Thread):
     def update(self)->None:
         self.recv_ghosts()
 
-        self.data2[1:-1] = self.data[1:-1] + (k * dt / (dx * dx)) * (self.data[2:] + self.data[1:-1] + self.data[:-2])
+        self.data2[1:-1] = self.data[1:-1] + (k * dt / (dx * dx)) * (self.data[2:] - 2*self.data[1:-1] + self.data[:-2])
         self.data, self.data2 = self.data2, self.data
 
         self.send_ghosts()
@@ -67,6 +67,16 @@ class Worker(Thread):
             self.update()
         self.recv_ghosts()
 
+def construct_grid(th) -> np.ndarray:
+    total = np.zeros((nx,))
+    lo = 0
+    for t in th:
+        total[lo:lo+t.sz] = t.data2
+        lo += t.sz - 2*t.ghosts
+
+    print("Stats:",np.min(total),np.average(total),np.max(total))
+    return total
+    
 def main(nthreads : int)->Tuple[float,float,np.ndarray]:
     th = []
     tx = nx//nthreads
@@ -93,12 +103,14 @@ def main(nthreads : int)->Tuple[float,float,np.ndarray]:
     else:
         hw = 0
 
-    total = np.zeros((nx,))
-    lo = 0
-    for t in th:
-        total[lo:lo+t.sz] = t.data2
-        lo += t.sz - 2*t.ghosts
+    total = construct_grid(th)
+    avg0 = (nx-1)/2
+    avgN = np.average(total)
 
+    assert np.abs(avgN - avg0) < 1e-14, f"{avgN} != {avg0}"
+
+    if nx < 20:
+        print("grid:",total)
     print("time for ",nthreads,": ",t2-t1,sep="")
     return t2-t1, hw, total
 
