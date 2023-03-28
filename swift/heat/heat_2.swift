@@ -88,8 +88,8 @@ for t in 0...(nt - 1) {
 
 }
 
-for i in 0...(nx-1){
-  print(space[0][i],space[1][i])
-}
+//for i in 0...(nx-1){
+//  print(space[0][i],space[1][i])
+//}
 
 print("swift,\(nx),\(nt),\(threads),\(dt),\(dx),\(-start.timeIntervalSinceNow)")

@@ -29,15 +29,21 @@ struct Worker {
     lo = tx * num
     hi = tx * (num + 1)
 
+ 
+
     space = [
-      UnsafeMutableBufferPointer<Double>.allocate(capacity: num),
-      UnsafeMutableBufferPointer<Double>.allocate(capacity: num),
+      UnsafeMutableBufferPointer<Double>.allocate(capacity: num + 2 ),
+      UnsafeMutableBufferPointer<Double>.allocate(capacity: num + 2)
     ]
 
-    for i in 0...(num-1)
+    space[0][0] = 0
+
+    for i in 1...(num)
     {
       space[0][i] = Double(lo + i)
     }
+    
+    space[0][num+1] = 0
 
   }
 
@@ -46,11 +52,11 @@ struct Worker {
   let r = (k * dt / (dx * dx))
 
   for i in 1...(num-2){
-
+    
      space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + r
-                    * (space[t % 2][nx - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
+                    * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
   }
 
 
@@ -58,7 +64,7 @@ struct Worker {
 
 func send_left (_ t : Int) -> Double {
 
-return space[t % 2][0]
+return space[t % 2][1]
 
   }
 
@@ -68,9 +74,32 @@ return space[t % 2][0]
 
   }
 
-  func receive_left () {}
+func send_ghost (_ left : Worker , _ right : Worker , _ t : Int) {
 
-  func recieve_left () {}
+  left.receiv_right(t,send_left(t))
+  right.receiv_left(t,send_right(t))
+
+}
+
+func receiv_ghost (_ left : Worker , _ right : Worker , _ t : Int) {
+
+  space[t % 2][0] = left.send_right(t)
+  space[t % 2][num-1] = right.send_left(t)
+
+}
+
+func receiv_right(_ t : Int, _ value : Double){
+
+  space[(t + 1) % 2][num-1] = value 
+
+}
+
+func receiv_left(_ t : Int, _ value : Double){
+
+  space[(t + 1) % 2][0] = value 
+
+}
+
 
 }
 
@@ -83,6 +112,8 @@ for t in 0...(threads - 1) {
   
 } 
 
+
+
 for t in 0...(nt - 1) {
 
   await withTaskGroup(
@@ -93,10 +124,46 @@ for t in 0...(nt - 1) {
 
         group.addTask {
 
+              
+            if (threads > 1) {
+            if (p == 0 ) {
+                await workerPool[p].receiv_ghost(workerPool[threads-1],workerPool[1],t)
+            }
+
+            else if (p == threads-1){
+
+                 await workerPool[p].receiv_ghost(workerPool[p-1],workerPool[0],t)
+
+            }
+
+            else {
+
+                await workerPool[p].receiv_ghost(workerPool[p-1],workerPool[p+1],t)
+            }
+            }
+
           
+
             await workerPool[p].update(t)
 
+          
 
+                if (threads > 1) {
+            if (p == 0 ) {
+                await workerPool[p].send_ghost(workerPool[threads-1],workerPool[1],t)
+            }
+
+            else if (p == threads-1){
+
+                 await workerPool[p].send_ghost(workerPool[p-1],workerPool[0],t)
+
+            }
+
+            else {
+
+                await workerPool[p].send_ghost(workerPool[p-1],workerPool[p+1],t)
+            }
+            }
 
         
           }
