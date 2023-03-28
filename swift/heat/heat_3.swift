@@ -10,7 +10,7 @@ let start = Date()
 let C_ARGV = CommandLine.arguments
 
 let nx = Int(C_ARGV[3]) ?? -1  // number of nodes
-let k = 0.5  // heat transfer coefficient
+let k = 0.4  // heat transfer coefficient
 let dt = 1.0  // time step
 let dx = 1.0  // grid spacing
 let nt = Int(C_ARGV[2]) ?? -1  // number of time steps
