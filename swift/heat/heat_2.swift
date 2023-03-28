@@ -43,10 +43,10 @@ for t in 0...(nt - 1) {
           var end = (p + 1) * length - 1
 
           if p == threads - 1 { end = nx - 1 }
- 
+
           let r = (k * dt / (dx * dx))
 
-// space[(t + 1) % 2][i].addingProduct(lhs: Double, rhs: Double)
+          // space[(t + 1) % 2][i].addingProduct(lhs: Double, rhs: Double)
 
           for i in start...end {
 
@@ -55,7 +55,7 @@ for t in 0...(nt - 1) {
               space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + r
-                    * (space[t % 2][nx - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
+                  * (space[t % 2][nx - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
 
             }
 
@@ -64,7 +64,7 @@ for t in 0...(nt - 1) {
               space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + r
-                    * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][0]))
+                  * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][0]))
 
             }
 
@@ -73,7 +73,7 @@ for t in 0...(nt - 1) {
               space[(t + 1) % 2][i] =
                 (space[t % 2][i]
                   + r
-                    * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
+                  * (space[t % 2][i - 1] - 2 * space[t % 2][i] + space[t % 2][i + 1]))
             }
           }
 
