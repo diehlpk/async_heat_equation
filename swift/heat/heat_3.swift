@@ -48,12 +48,12 @@ struct Worker {
 
     let r = (k * dt / (dx * dx))
 
-    let dst =   space[(t + 1) % 2]
+    let dst = space[(t + 1) % 2]
     let src = space[t % 2]
 
     for i in 1...(num - 2) {
 
-    dst[i] =
+      dst[i] =
         (src[i]
           + r
           * (src[i - 1] - 2 * src[i] + src[i + 1]))
