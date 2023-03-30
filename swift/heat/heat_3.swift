@@ -27,20 +27,20 @@ struct Worker {
 
     num = p_num
     lo = tx * num
-    hi = tx * (num + 1)
+    hi = (tx+1) * (num)
 
     space = [
       UnsafeMutableBufferPointer<Double>.allocate(capacity: num + 2),
       UnsafeMutableBufferPointer<Double>.allocate(capacity: num + 2),
     ]
 
-    space[0][0] = 0
+    space[0][0] = Double(hi)
 
     for i in 1...(num) {
       space[0][i] = Double(lo + i)
     }
 
-    space[0][num + 1] = 0
+    space[0][num + 1] = Double(lo)
 
   }
 
@@ -51,9 +51,10 @@ struct Worker {
     let dst = space[(t + 1) % 2]
     let src = space[t % 2]
 
-    for i in 1...(num - 2) {
 
-      dst[i] =
+    for i in 1...(num) {
+
+      dst[i] =       
         (src[i]
           + r
           * (src[i - 1] - 2 * src[i] + src[i + 1]))
@@ -110,7 +111,7 @@ for t in 0...(threads - 1) {
 
 }
 
-for t in 0...(nt - 1) {
+for t in 0...(nt-1) {
 
   await withTaskGroup(
     of: Void.self, returning: Void.self,
@@ -136,6 +137,7 @@ for t in 0...(nt - 1) {
               await workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[p + 1], t)
             }
           }
+        
 
           await workerPool[p].update(t)
 
@@ -155,6 +157,12 @@ for t in 0...(nt - 1) {
               await workerPool[p].send_ghost(workerPool[p - 1], workerPool[p + 1], t)
             }
           }
+          else {
+            
+            await workerPool[0].space[(t+1) % 2][0] =  workerPool[0].space[(t+1) % 2][length]
+            await workerPool[0].space[(t+1) % 2][length+1] =  workerPool[0].space[(t+1) % 2][1]  
+
+          }
 
         }
 
@@ -167,5 +175,15 @@ for t in 0...(nt - 1) {
     })
 
 }
+
+for i in 0...(length+1)
+{
+  print(workerPool[0].space[1][i])
+}
+print("-------")
+//for i in 1...(length)
+//{
+//  print(workerPool[1].space[0][i],workerPool[1].space[1][i])
+//}
 
 print("swift,\(nx),\(nt),\(threads),\(dt),\(dx),\(-start.timeIntervalSinceNow)")
