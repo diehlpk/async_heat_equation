@@ -29,7 +29,7 @@ struct Worker {
 
     num = p_num
     lo = tx * num
-    hi = (tx+1) * (num)
+    hi = (tx + 1) * (num)
 
     space = [
       UnsafeMutableBufferPointer<Double>.allocate(capacity: num + 2),
@@ -43,13 +43,11 @@ struct Worker {
     }
     space[0][num + 1] = Double(lo)
 
-
-
-   // for i in 0...(num+1) {
-   //   
-   //   print(space[0][i])
-   // }
-   // print("-----")
+    // for i in 0...(num+1) {
+    //
+    //   print(space[0][i])
+    // }
+    // print("-----")
   }
 
   func update(_ t: Int) {
@@ -59,10 +57,9 @@ struct Worker {
     let dst = space[(t + 1) % 2]
     let src = space[t % 2]
 
-
     for i in 1...(num) {
 
-      dst[i] =       
+      dst[i] =
         (src[i]
           + r
           * (src[i - 1] - 2 * src[i] + src[i + 1]))
@@ -78,7 +75,7 @@ struct Worker {
 
   func send_right(_ t: Int) -> Double {
 
-    return space[t % 2][num  ]
+    return space[t % 2][num]
 
   }
 
@@ -92,7 +89,7 @@ struct Worker {
   func receiv_ghost(_ left: Worker, _ right: Worker, _ t: Int) {
 
     space[t % 2][0] = left.send_right(t)
-    space[t % 2][num + 1 ] = right.send_left(t)
+    space[t % 2][num + 1] = right.send_left(t)
 
   }
 
@@ -119,7 +116,7 @@ for t in 0...(threads - 1) {
 
 }
 
-for t in 0...(nt-1) {
+for t in 0...(nt - 1) {
 
   await withTaskGroup(
     of: Void.self, returning: Void.self,
@@ -145,8 +142,8 @@ for t in 0...(nt-1) {
               await workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[p + 1], t)
             }
           }
-        
-/*
+
+          /*
 biSema.wait() // lock
 for i in 0...(length+1)
 {
@@ -173,11 +170,10 @@ biSema.signal() // unlock
 
               await workerPool[p].send_ghost(workerPool[p - 1], workerPool[p + 1], t)
             }
-          }
-          else {
-            
-            await workerPool[0].space[(t+1) % 2][0] =  workerPool[0].space[(t+1) % 2][length]
-            await workerPool[0].space[(t+1) % 2][length+1] =  workerPool[0].space[(t+1) % 2][1]  
+          } else {
+
+            await workerPool[0].space[(t + 1) % 2][0] = workerPool[0].space[(t + 1) % 2][length]
+            await workerPool[0].space[(t + 1) % 2][length + 1] = workerPool[0].space[(t + 1) % 2][1]
 
           }
 
