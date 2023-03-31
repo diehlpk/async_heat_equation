@@ -5,6 +5,8 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 import Foundation
 
+let biSema = DispatchSemaphore(value: 1)
+
 let start = Date()
 
 let C_ARGV = CommandLine.arguments
@@ -39,9 +41,15 @@ struct Worker {
     for i in 1...(num) {
       space[0][i] = Double(lo + i)
     }
-
     space[0][num + 1] = Double(lo)
 
+
+
+   // for i in 0...(num+1) {
+   //   
+   //   print(space[0][i])
+   // }
+   // print("-----")
   }
 
   func update(_ t: Int) {
@@ -70,7 +78,7 @@ struct Worker {
 
   func send_right(_ t: Int) -> Double {
 
-    return space[t % 2][num - 1]
+    return space[t % 2][num  ]
 
   }
 
@@ -84,13 +92,13 @@ struct Worker {
   func receiv_ghost(_ left: Worker, _ right: Worker, _ t: Int) {
 
     space[t % 2][0] = left.send_right(t)
-    space[t % 2][num - 1] = right.send_left(t)
+    space[t % 2][num + 1 ] = right.send_left(t)
 
   }
 
   func receiv_right(_ t: Int, _ value: Double) {
 
-    space[(t + 1) % 2][num - 1] = value
+    space[(t + 1) % 2][num + 1] = value
 
   }
 
@@ -138,7 +146,16 @@ for t in 0...(nt-1) {
             }
           }
         
+/*
+biSema.wait() // lock
+for i in 0...(length+1)
+{
+  print(await workerPool[p].space[0][i])
+}
+print("-------",p)
 
+biSema.signal() // unlock
+*/
           await workerPool[p].update(t)
 
           if threads > 1 {
@@ -176,14 +193,16 @@ for t in 0...(nt-1) {
 
 }
 
+/*
+for t in 0...(threads - 1){
+
 for i in 0...(length+1)
 {
-  print(workerPool[0].space[1][i])
+ print(workerPool[t].space[1][i])
 }
 print("-------")
-//for i in 1...(length)
-//{
-//  print(workerPool[1].space[0][i],workerPool[1].space[1][i])
-//}
+
+}
+*/
 
 print("swift,\(nx),\(nt),\(threads),\(dt),\(dx),\(-start.timeIntervalSinceNow)")
