@@ -19,7 +19,7 @@ class Queue(Generic[T]):
         self.items : List[T] = []
     def put_nowait(self, item: T)->None:
         with self.lock:
-            self.items += [item]
+            self.items = [item] + self.items
     def get(self)->T:
         while True:
             with self.lock:
