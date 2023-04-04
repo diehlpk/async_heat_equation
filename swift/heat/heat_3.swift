@@ -24,6 +24,15 @@ struct Worker {
   var num: Int
   var lo: Int
   var hi: Int
+ 
+  init(){
+
+    num = -1
+    lo = -1
+    hi = -1
+    space = []
+
+  }
 
   init(_ p_num: Int, _ tx: Int) {
 
@@ -107,12 +116,14 @@ struct Worker {
 
 }
 
-var workerPool: [Worker] = []
+//var workerPool: [Worker] = []
+let workerPool  = UnsafeMutableBufferPointer<Worker>.allocate(capacity: threads) 
+//let workerPool = Array(repeating: Worker(), count: threads)
 let length = Int(nx / threads)
 
 for t in 0...(threads - 1) {
 
-  workerPool.append(Worker(length, t))
+  workerPool[t] = Worker(length, t)
 
 }
 
@@ -128,18 +139,18 @@ for t in 0...(nt - 1) {
 
           if threads > 1 {
             if p == 0 {
-              await workerPool[p].receiv_ghost(workerPool[threads - 1], workerPool[1], t)
+              workerPool[p].receiv_ghost(workerPool[threads - 1], workerPool[1], t)
             }
 
             else if p == threads - 1 {
 
-              await workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[0], t)
+               workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[0], t)
 
             }
 
             else {
 
-              await workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[p + 1], t)
+               workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[p + 1], t)
             }
           }
 
@@ -153,27 +164,27 @@ print("-------",p)
 
 biSema.signal() // unlock
 */
-          await workerPool[p].update(t)
+          workerPool[p].update(t)
 
           if threads > 1 {
             if p == 0 {
-              await workerPool[p].send_ghost(workerPool[threads - 1], workerPool[1], t)
+               workerPool[p].send_ghost(workerPool[threads - 1], workerPool[1], t)
             }
 
             else if p == threads - 1 {
 
-              await workerPool[p].send_ghost(workerPool[p - 1], workerPool[0], t)
+              workerPool[p].send_ghost(workerPool[p - 1], workerPool[0], t)
 
             }
 
             else {
 
-              await workerPool[p].send_ghost(workerPool[p - 1], workerPool[p + 1], t)
+               workerPool[p].send_ghost(workerPool[p - 1], workerPool[p + 1], t)
             }
           } else {
 
-            await workerPool[0].space[(t + 1) % 2][0] = workerPool[0].space[(t + 1) % 2][length]
-            await workerPool[0].space[(t + 1) % 2][length + 1] = workerPool[0].space[(t + 1) % 2][1]
+            workerPool[0].space[(t + 1) % 2][0] = workerPool[0].space[(t + 1) % 2][length]
+             workerPool[0].space[(t + 1) % 2][length + 1] = workerPool[0].space[(t + 1) % 2][1]
 
           }
 
