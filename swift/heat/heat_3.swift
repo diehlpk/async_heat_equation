@@ -52,11 +52,6 @@ struct Worker {
     }
     space[0][num + 1] = Double(lo)
 
-    // for i in 0...(num+1) {
-    //
-    //   print(space[0][i])
-    // }
-    // print("-----")
   }
 
   func update(_ t: Int) {
@@ -116,9 +111,7 @@ struct Worker {
 
 }
 
-//var workerPool: [Worker] = []
 let workerPool  = UnsafeMutableBufferPointer<Worker>.allocate(capacity: threads) 
-//let workerPool = Array(repeating: Worker(), count: threads)
 let length = Int(nx / threads)
 
 for t in 0...(threads - 1) {
@@ -154,16 +147,6 @@ for t in 0...(nt - 1) {
             }
           }
 
-          /*
-biSema.wait() // lock
-for i in 0...(length+1)
-{
-  print(await workerPool[p].space[0][i])
-}
-print("-------",p)
-
-biSema.signal() // unlock
-*/
           workerPool[p].update(t)
 
           if threads > 1 {
@@ -199,17 +182,5 @@ biSema.signal() // unlock
     })
 
 }
-
-/*
-for t in 0...(threads - 1){
-
-for i in 0...(length+1)
-{
- print(workerPool[t].space[1][i])
-}
-print("-------")
-
-}
-*/
 
 print("swift,\(nx),\(nt),\(threads),\(dt),\(dx),\(-start.timeIntervalSinceNow)")
