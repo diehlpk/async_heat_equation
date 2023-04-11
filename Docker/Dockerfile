@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License 
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-From fedora:35
+From fedora:37
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
