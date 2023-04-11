@@ -20,19 +20,25 @@ fn main() {
     let nt = get_arg(&args, 2, "nt");
     let nx = get_arg(&args, 3, "nx");
 
-    let s = State::new(nx, nt, threads);
+    let mut s = State::new(nx, nt, threads);
     let t = Instant::now();
 
     s.work();
 
     let elapsed = t.elapsed();
 
-    println!("Elapsed: {}ms", elapsed.as_millis());
     log_csv(&s, elapsed).expect("Couldn't write perfdata.csv");
 
     match env::var("dump") {
-        Ok(v) if v == "1" => {
+        Ok(v) if v == "full" => {
             dump(&s).expect("Couldn't write dump.csv");
+        },
+        Ok(v) if v == "stats" => {
+            let space = s.collect_space();
+            let avg = space.iter().sum::<f64>() / space.len() as f64;
+
+            println!("Elapsed: {}ms", elapsed.as_millis());
+            println!("Mean: {0}. We would expect {1} ({2}/2 - 0.5) after a long enough evolution.", avg, (nx as f64 / 2.0) - 0.5, nx);
         }
         _ => { }
     }
