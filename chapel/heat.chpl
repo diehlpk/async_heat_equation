@@ -11,12 +11,8 @@
 // (4) use --nt=YYY to set the number of time steps to YYY.
 // CHPL_RT_NUM_THREADS_PER_LOCALE=6 ./heat --nx=10_000_000
 
-use IO;
 use Time;
-use FileSystem;
-use Reflection;
 
-config const tasks: int = 1;
 config const ghosts: int = 1;
 config const k: real = 0.4;
 config const dt: real = 1.0;
@@ -46,32 +42,13 @@ proc main() {
   }
   var t: stopwatch;
   t.start();
-  for t in 0..nt do {
-    if t % 2 == 0 {
-      update(data, data2);
-    } else {
-      update(data2, data);
-    }
+  for t in 1..nt do {
+    update(data, data2);
+    data <=> data2;
   }
   t.stop();
-  if data2.size < 20 {
-    writeln(data2);
+  if data.size < 20 {
+    writeln(data);
   }
-  writeln("time: ",t.elapsed());
-  /* // Can't figure out how to append
-  var fn = "perfdata.csv";
-  if !exists(fn) {
-    var output = open(fn, ioMode.cw);
-    var wri = output.writer();
-    wri.writeln("lang,nx,nt,threads,dt,dx,total time,flops");
-    wri.close();
-    output.close();
-  }
-  var output = open(fn, ioMode.a); // this doesn't work
-  var wri = output.writer();
-  wri.writeln("chapel,",nx,",",nt,",",here.numPUs(),",",dt,",",dx,",",t.elapsed(),",0");
-  wri.close();
-  output.close();
-  */
   writeln("chapel,",nx,",",nt,",",here.numPUs(),",",dt,",",dx,",",t.elapsed(),",0");
 }
