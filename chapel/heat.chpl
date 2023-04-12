@@ -60,7 +60,7 @@ proc main() {
     wri.close();
     output.close();
   }
-  var output = open(fn, ioMode.r);
+  var output = open(fn, ioMode.a); // this doesn't work
   var wri = output.writer();
   wri.writeln("chapel,",nx,",",nt,",",here.numPUs(),",",dt,",",dx,",",t.elapsed(),",0");
   wri.close();
