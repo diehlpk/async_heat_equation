@@ -13,6 +13,8 @@
 
 use Time;
 
+extern proc getenv(name : c_string) : c_string;
+
 config const ghosts: int = 1;
 config const k: real = 0.4;
 config const dt: real = 1.0;
@@ -50,5 +52,5 @@ proc main() {
   if data.size < 20 {
     writeln(data);
   }
-  writeln("chapel,",nx,",",nt,",",here.numPUs(),",",dt,",",dx,",",t.elapsed(),",0");
+  writeln("chapel,",nx,",",nt,",",getenv('CHPL_RT_NUM_THREADS_PER_LOCALE'.c_str()):string,",",dt,",",dx,",",t.elapsed(),",0");
 }
