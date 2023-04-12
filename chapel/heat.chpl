@@ -3,6 +3,13 @@
 //  SPDX-License-Identifier: BSL-1.0
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Notes on running:
+// (1) Use CHPL_RT_NUM_THREADS_PER_LOCALE to set the desired parallelism.
+// (2) This program does not support positional args.
+// (3) Use --nx=YYY to set the number of cells to YYY.
+// (4) use --nt=YYY to set the number of time steps to YYY.
+// CHPL_RT_NUM_THREADS_PER_LOCALE=6 ./heat --nx=10_000_000
 
 use IO;
 use Time;
