@@ -7,8 +7,8 @@ module load python/3.10.5
 PYTHON=0
 SWIFT=0
 RUST=0
-GO=0
-CHAPEL=1
+GO=1
+CHAPEL=0
 
 TIME=1000
 SIZE=1000000
@@ -56,6 +56,7 @@ fi
 if [ "${GO}" == "1" ]
 then
     cd go/heat
+    go build -ldflags "-s -w" main.go
 
     for i in {40..0..2}
     do 
@@ -69,7 +70,7 @@ fi
 if [ "${CHAPEL}" == "1" ]
 then
     cd chapel
-
+    /work/diehlpk/Compile/all/chapel-1.29.0/bin/linux64-x86_64/chpl --fast heat.chpl 
     for i in {40..0..2}
     do 
         CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./heat --nx ${SIZE} --nt ${TIME} >> perfstat.csv
