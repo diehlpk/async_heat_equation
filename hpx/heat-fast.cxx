@@ -28,8 +28,6 @@ void pr(const std::vector<double>& total) {
 // Note that since this problem only has one
 // thread writing and one thread reading, no
 // synchronization is technically needed.
-// We use this hand-rolled Queue to get that
-// functionality.
 class Queue {
   static const size_t sz = 20;
   double data[sz];
@@ -164,7 +162,7 @@ int main(int argc, char **argv) {
     f.close();
   }
   std::ofstream f("perfdata.csv",std::ios_base::app);
-  f << "hpx," << nx << "," << nt << "," << threads << "," << dt << "," << dx << "," << elapsed << ",0" << std::endl;
+  f << "hpxfast," << nx << "," << nt << "," << threads << "," << dt << "," << dx << "," << elapsed << ",0" << std::endl;
   f.close();
   return 0;
 }
