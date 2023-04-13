@@ -4,10 +4,11 @@ source "$HOME/.cargo/env"
 
 module load python/3.10.5
 
-PYTHON=1
-SWIFT=1
-RUST=1
-GO=1
+PYTHON=0
+SWIFT=0
+RUST=0
+GO=0
+CHAPEL=1
 
 TIME=1000
 SIZE=1000000
@@ -63,4 +64,19 @@ then
 
     cd ../..
 fi
+
+
+if [ "${CHAPEL}" == "1" ]
+then
+    cd chapel
+
+    for i in {40..0..2}
+    do 
+        CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./heat --nx ${SIZE} --nt ${TIME} >> perfstat.csv
+    done
+
+    cd ../
+fi
+
+
 
