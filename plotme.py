@@ -53,7 +53,6 @@ for name in xdata:
             bounds_upper = [np.inf, 1, 1, 1, 1]
             bounds_lower = [0 for x in bounds_upper]
             bounds = (tuple(bounds_lower), tuple(bounds_upper))
-            print(bounds)
             r = cf(rt,xv,yv,maxfev=5000,bounds=bounds)
         except Exception as e:
             print("Could not fit curve for:",name,e)
@@ -61,17 +60,32 @@ for name in xdata:
         k=r[0][0]
         par=r[0][1]
         o=r[0][2]
-        print("For ",name,": Parallel=","%.2g" % par," and Overhead=","%.2g" % o," using ",len(xv)," data pts.",sep='')
-        print(*r[0])
+        o2=r[0][3]
+        o3=r[0][4]
+        print("For ",name,": Parallel=","%.8g" % par," using ",len(xv)," run data pts.",sep='')
+        overheads = 0
+        if o > 1e-14:
+            print("   Overhead log(N)=%.8g:" % o),
+            overheads += 1
+        if o2 > 1e-14:
+            print("   Overhead sqrt(N)=%.8g:" % o2),
+            overheads += 1
+        if o3 > 1e-14:
+            print("   Overhead N=%.8g:" % o3),
+            overheads += 1
+        if overheads == 0:
+            print("   No appreciable overheads")
+        print()
         xv2 = np.asarray(range(1,round(1+max(xdata[name]))))
         yv2 = rt(xv2,*r[0])
         plt.semilogy(xv2,yv2,'-',label='fit '+fix)
 plt.legend()
 ax = plt.gca()
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, shadow=True, ncol=4)
 plt.grid()
 plt.xlabel("#cores")
+plt.ylabel("Time [s]")
 plt.savefig('plot-'+file+'.pdf',bbox_inches='tight')
 plt.savefig('plot-'+file+'.png',bbox_inches='tight')
 plt.tight_layout()
