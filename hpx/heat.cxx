@@ -30,7 +30,8 @@ public:
   size_t num;
   size_t lo, hi, sz;
   std::vector<double> data, data2;
-  hpx::lcos::local::channel<double> left, right;
+  static const size_t chsz = 20;
+  hpx::lcos::local::channel_spsc<double> left, right;
   Worker *leftThread = nullptr;
   Worker *rightThread = nullptr;
 
@@ -39,7 +40,7 @@ public:
     this->swap(t);
   }
 
-  Worker(size_t num_, size_t tx) : num(num_), data(), data2() {
+  Worker(size_t num_, size_t tx) : num(num_), left(chsz), right(chsz) {
     lo = tx * num;
     hi = tx * (num + 1);
     if (hi > nx) hi = nx;
@@ -59,8 +60,10 @@ public:
   ~Worker() {}
 
   void recv_ghosts() {
-    data[0] = left.get().get();
-    data[sz-1] = right.get().get();
+    //data[0] = left.get().get();
+    //data[sz-1] = right.get().get();
+    left.get(&data[0]);
+    right.get(&data[sz-1]);
   }
 
   void update() {
@@ -74,8 +77,10 @@ public:
   }
 
   void send_ghosts() {
-    leftThread->right.set(data[1]);
-    rightThread->left.set(data[sz-2]);
+    double d1 = data[1];
+    double d2 = data[sz-2];
+    leftThread->right.set(HPX_MOVE(d1));
+    rightThread->left.set(HPX_MOVE(d2));
   }
 
   void run() {
