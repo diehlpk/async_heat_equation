@@ -85,6 +85,7 @@ ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, shadow=True, ncol=4)
 plt.grid()
 plt.xlabel("#cores")
+plt.ylabel("Time [s]")
 plt.savefig('plot-'+file+'.pdf',bbox_inches='tight')
 plt.savefig('plot-'+file+'.png',bbox_inches='tight')
 plt.tight_layout()
