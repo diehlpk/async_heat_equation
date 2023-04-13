@@ -81,7 +81,7 @@ for name in xdata:
         plt.semilogy(xv2,yv2,'-',label='fit '+fix)
 plt.legend()
 ax = plt.gca()
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, shadow=True, ncol=4)
 plt.grid()
 plt.xlabel("#cores")
