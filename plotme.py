@@ -2,6 +2,10 @@ import csv
 import os
 import re
 #from math import round
+import sys
+
+file=sys.argv[1]
+
 
 if "DISPLAY" not in os.environ:
     os.environ["DISPLAY"] = ":0"
@@ -9,7 +13,7 @@ if "DISPLAY" not in os.environ:
 xdata = {}
 ydata = {}
 
-with open('perfdata.csv','r',newline='') as cfd:
+with open('perfdata-'+file+'.csv','r',newline='') as cfd:
     skip = True
     for row in csv.reader(cfd):
         if skip:
@@ -63,5 +67,12 @@ for name in xdata:
         yv2 = rt(xv2,*r[0])
         plt.semilogy(xv2,yv2,'-',label='fit '+fix)
 plt.legend()
-plt.savefig('plot.png')
+ax = plt.gca()
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=4)
+plt.grid()
+plt.xlabel("#cores")
+plt.savefig('plot-'+file+'.pdf',bbox_inches='tight')
+plt.savefig('plot-'+file+'.png',bbox_inches='tight')
+plt.tight_layout()
 plt.show()
