@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <hpx/channel.hpp>
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 
 using std::size_t;
 
@@ -127,5 +129,14 @@ int main(int argc, char **argv) {
   std::vector<double> total = construct_grid(workers);
   if(nx <= 20)
     pr(total);
+
+  if(!std::filesystem::exists("perfdata.csv")) {
+    std::ofstream f("perfdata.csv");
+    f << "lang,nx,nt,threads,dt,dx,total time,flops" << std::endl;
+    f.close();
+  }
+  std::ofstream f("perfdata.csv",std::ios_base::app);
+  f << "hpx," << nx << "," << nt << "," << threads << "," << dt << "," << dx << "," << elapsed << ",0" << std::endl;
+  f.close();
   return 0;
 }
