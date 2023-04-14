@@ -14,6 +14,5 @@ set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 find_package(HPX REQUIRED)
 
 add_hpx_executable(heat SOURCES heat.cxx)
-add_hpx_executable(heat-fast SOURCES heat-fast.cxx)
 
 
