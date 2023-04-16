@@ -43,7 +43,8 @@ for name in xdata:
     yv = np.asarray(ydata[name])
     assert len(xv) == len(yv)
     fix = fixname(name)
-    plt.semilogy(xv,yv,'o',label=fix)
+    p = plt.semilogy(xv,yv,'o',label=fix)
+    color=p[0].get_color()
 
     def rt(x, k, p, o, o2, o3):
         return k*(1-p + p/x + o*np.log(x) + o2*np.sqrt(x)+o3*x)
@@ -78,7 +79,7 @@ for name in xdata:
         print()
         xv2 = np.asarray(range(1,round(1+max(xdata[name]))))
         yv2 = rt(xv2,*r[0])
-        plt.semilogy(xv2,yv2,'-',label='fit '+fix)
+        plt.semilogy(xv2,yv2,'-',label='fit '+fix,color=color)
 plt.legend()
 ax = plt.gca()
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
