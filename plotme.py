@@ -19,7 +19,9 @@ with open('perfdata-'+file+'.csv','r',newline='') as cfd:
         if skip:
             skip = False
             continue
-        name = "%s-%d" % (row[0], int(row[1]))
+        #name = "%s-%d" % (row[0], int(row[1]))
+        name = row[0]
+        nx = row[1]
         if name not in xdata:
             xdata[name] = []
             ydata[name] = []
