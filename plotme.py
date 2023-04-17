@@ -22,6 +22,7 @@ with open('perfdata-'+file+'.csv','r',newline='') as cfd:
         #name = "%s-%d" % (row[0], int(row[1]))
         name = row[0]
         nx = row[1]
+        nt = row[2]
         if name not in xdata:
             xdata[name] = []
             ydata[name] = []
@@ -89,6 +90,7 @@ ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
 plt.grid()
 plt.xlabel("#cores")
 plt.ylabel("Time [s]")
+plt.title("nx="+nx+" and nt="+nt)
 plt.savefig('plot-'+file+'.pdf',bbox_inches='tight')
 plt.savefig('plot-'+file+'.png',bbox_inches='tight')
 plt.tight_layout()
