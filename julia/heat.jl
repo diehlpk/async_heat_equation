@@ -64,9 +64,21 @@ function run(w::Worker)
 
     w.send_ghosts()
 
-    #for n in range(nt){
-    #    w.update()
-    #}
+    for n in range(nt)
+        w.update()
+    end
 
     w.recv_ghosts()
 end
+
+function construct_grid(th::Array{Worker})
+
+    total = zeros(nx,1)
+    for t in th 
+        total[t.lo + ghosts:t.hi - ghosts] = t.data[ghosts:-ghosts]
+    end
+
+    #print("Stats:",np.min(total),np.average(total),np.max(total))
+    return total
+end
+
