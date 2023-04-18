@@ -125,5 +125,5 @@ if not os.path.exists(fn):
         print('lang,nx,nt,threads,dt,dx,total time,flops',file=fd)
 with open("perfdata.csv","a") as fd:
     print(",".join(
-        [str(x) for x in ['heat2', nx, nt, threads, dx, dt, tdiff, hw]]
+        [str(x) for x in ['python', nx, nt, threads, dx, dt, tdiff, hw]]
     ),file=fd)
