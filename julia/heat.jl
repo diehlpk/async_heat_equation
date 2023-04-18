@@ -62,6 +62,8 @@ for i in range(1, nx)
     space[1][i] = i
 end
 
+totalTime = @elapsed begin
+
 for t in range(1, nt)
     current = space[t % 2+1]
     future = space[(t+1) % 2+1]
@@ -78,6 +80,8 @@ for t in range(1, nt)
     end
 end
 
+end
+
 fn = "perfdata.csv"
 
 if isfile(fn) == false
@@ -87,5 +91,5 @@ if isfile(fn) == false
     close(file)
 end
 file = open(fn, "a")
-write(file, PROGRAM_FILE*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(0)*"\n")
+write(file, PROGRAM_FILE*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(totalTime)*","*string(0)*"\n")
 close(file)
