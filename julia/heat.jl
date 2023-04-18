@@ -10,30 +10,31 @@ println(PROGRAM_FILE)
 check_correctness = false
 
 ghosts = 1
-nx = parse(Int64,ARGS[2])        # number of nodes
+nx = parse(Int64,ARGS[3])        # number of nodes
 k = 0.5                      # heat transfer coefficient
 dt = 1.                      # time step
 dx = 1.                      # grid spacing
-nt = parse(Int64,ARGS[1])        # number of time steps
-threads = Threads.nthreads()   # numnber of threads    
+nt = parse(Int64,ARGS[2])        # number of time steps
+nthreads = parse(Int64,ARGS[1])    # numnber of threads    
 
 Base.@kwdef mutable struct Worker
 
-num::Int64   
-lo::Int64 = num - ghost
-hi::Int64 = (num+1) + ghosts
+num::Int64  
+tx::Int64 
+lo::Int64 = tx * num - ghosts
+hi::Int64 = tx * (num+1) + ghosts
 sz::Int64 = hi -lo
 
-right::Queue = Queue[Float64]()
-left::Queue = Queue[Float64]()
+#right::Queue[Float64] = Queue[Float64]()
+#left::Queue[Float64] = Queue[Float64]()
 
-off = 1
+#off = 1
 
-data = lo+off:(hi-1+off)/(hi-lo):(hi-1+off)
-data2 = zeros(sz,1)
+#data = lo+off:(hi-1+off)/(hi-lo):(hi-1+off)
+#data2 = zeros(sz,1)
 
-leftThread::Worker
-rightThread::Worker
+#leftThread::Worker
+#rightThread::Worker
 
 end
 
@@ -82,3 +83,11 @@ function construct_grid(th::Array{Worker})
     return total
 end
 
+# main
+
+th = Array{Worker,nthreads}
+tx = (2*ghosts+nx)
+
+for num in range(0,nthreads)
+    th[num] = Worker(num = nx,tx=tx)
+end
