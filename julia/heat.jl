@@ -19,22 +19,24 @@ nthreads = parse(Int64,ARGS[1])    # numnber of threads
 
 Base.@kwdef mutable struct Worker
 
-num::Int64  
-tx::Int64 
+num::Int64 = -1 
+tx::Int64 = -1
 lo::Int64 = tx * num - ghosts
 hi::Int64 = tx * (num+1) + ghosts
 sz::Int64 = hi -lo
 
+#@assert sz > 0
+
 #right::Queue[Float64] = Queue[Float64]()
 #left::Queue[Float64] = Queue[Float64]()
 
-#off = 1
+off = 1
 
-#data = lo+off:(hi-1+off)/(hi-lo):(hi-1+off)
-#data2 = zeros(sz,1)
+data = lo+off:(hi-1+off)/(hi-lo):(hi-1+off)
+data2 = zeros(sz,1)
 
-#leftThread::Worker
-#rightThread::Worker
+leftThread::Worker = Worker(num=-1,tx=-1)
+rightThread::Worker = Worker(num=-1,tx=-1)
 
 end
 
@@ -47,7 +49,7 @@ end
 
 function update(w::Worker)
 
-    w.recv_ghosts()
+    recv_ghosts(w)
 
     #w.data2[1:-1] = w.data[1:-1] + (k * dt / (dx * dx)) * (w.data[2:] - 2*w.data[1:-1] + w.data[:-2])
     #w.data w.data2 = w.data2, w.data
@@ -63,13 +65,13 @@ end
 
 function run(w::Worker)
 
-    w.send_ghosts()
+    send_ghosts(w)
 
     for n in range(nt)
-        w.update()
+        update(w)
     end
 
-    w.recv_ghosts()
+    recv_ghosts(w)
 end
 
 function construct_grid(th::Array{Worker})
@@ -84,10 +86,35 @@ function construct_grid(th::Array{Worker})
 end
 
 # main
+th = Array{Worker}(Worker(num=-1,tx=-1),nthreads)
 
-th = Array{Worker,nthreads}
 tx = (2*ghosts+nx)
 
-for num in range(0,nthreads)
-    th[num] = Worker(num = nx,tx=tx)
+
+for num in range(1,nthreads,1)
+   println(Int(num))
+   #println(size(th))
+   #th[Int(num)] = Worker(num = nx,tx=tx)
+   #push!(th,Worker(num = nx,tx=tx))
+   #insert!(th,num,Worker(num = nx,tx=tx))
 end
+
+println("end")
+
+#for i in range(1,nthreads)
+#    th[i].rightThread = th[(i+1) % nthreads + 1]q
+#    #th[(i+1)%nthreads+1].leftThread = th[i]
+#end
+
+#tasks = []
+
+#t1 = time.time()
+#for t in th
+#    task = @task run(t)
+#    schedule(task)
+#    push!(tasks,task)
+#end
+#for task in tasks 
+#    wait(task)
+#end
+#t2 = time.time()
