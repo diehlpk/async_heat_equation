@@ -67,16 +67,19 @@ for t in range(1, nt)
     current = space[t % 2+1]
     future = space[(t+1) % 2+1]
 
-    tasks = []
+    #tasks = []
   
-    for i in 0:nthreads-1
-        push!(tasks,@async work(future,current,i,nthreads))
-        
+    #for i in 0:nthreads-1
+    #    push!(tasks,Threads.@spawn work(future,current,i,nthreads))
+    #end
+
+    Threads.@threads for i in 0:9
+        work(future,current,i,nthreads)    
     end
 
-    for t in tasks
-        wait(t)
-    end
+    #for t in tasks
+    #    wait(t)
+    #end
 end
 
 end

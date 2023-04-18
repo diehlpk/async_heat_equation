@@ -86,13 +86,17 @@ function construct_grid(th::Array{Worker})
 end
 
 # main
-th = Array{Worker}(Worker(num=-1,tx=-1),nthreads)
+Base.zero(::Worker) = Worker(num=-1,tx=-1)
+Base.zero(::Type{Worker}) = Worker(num=-1,tx=-1)
+
+th = zeros(Worker,nthreads)
+
+#Vector{Worker}(Worker(num=-1,tx=-1),nthreads)
 
 tx = (2*ghosts+nx)
 
 
-for num in range(1,nthreads,1)
-   println(Int(num))
+for num in range(1,nthreads)
    #println(size(th))
    #th[Int(num)] = Worker(num = nx,tx=tx)
    #push!(th,Worker(num = nx,tx=tx))

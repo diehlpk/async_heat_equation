@@ -1,4 +1,4 @@
-lang,nx,nt,threads,dt,dx,total time,flops
+Ok, Danke,lang,nx,nt,threads,dt,dx,total time,flops
 go,1000000,1000,40,1,1,0.130910
 go,1000000,1000,38,1,1,0.131039
 go,1000000,1000,36,1,1,0.128216
