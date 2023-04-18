@@ -7,7 +7,6 @@ using DataStructures
 
 check_correctness = false
 
-ghosts = 1
 nx = parse(Int64,ARGS[3])        # number of nodes
 k = 0.5                      # heat transfer coefficient
 dt = 1.                      # time step
