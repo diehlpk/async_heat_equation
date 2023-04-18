@@ -5,8 +5,6 @@
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 using DataStructures
 
-println(PROGRAM_FILE)
-
 check_correctness = false
 
 ghosts = 1
@@ -15,106 +13,79 @@ k = 0.5                      # heat transfer coefficient
 dt = 1.                      # time step
 dx = 1.                      # grid spacing
 nt = parse(Int64,ARGS[2])        # number of time steps
-nthreads = parse(Int64,ARGS[1])    # numnber of threads    
+nthreads = parse(Int64,ARGS[1])    # numnber of threads   
 
-Base.@kwdef mutable struct Worker
+function idx(i, direction)
 
-num::Int64 = -1 
-tx::Int64 = -1
-lo::Int64 = tx * num - ghosts
-hi::Int64 = tx * (num+1) + ghosts
-sz::Int64 = hi -lo
-
-#@assert sz > 0
-
-#right::Queue[Float64] = Queue[Float64]()
-#left::Queue[Float64] = Queue[Float64]()
-
-off = 1
-
-data = lo+off:(hi-1+off)/(hi-lo):(hi-1+off)
-data2 = zeros(sz,1)
-
-leftThread::Worker = Worker(num=-1,tx=-1)
-rightThread::Worker = Worker(num=-1,tx=-1)
-
-end
-
-function recv_ghosts(w::Worker)
-
-w.data[0] = w.left.get()
-w.data[-1] = w.right.get()
-
-end
-
-function update(w::Worker)
-
-    recv_ghosts(w)
-
-    #w.data2[1:-1] = w.data[1:-1] + (k * dt / (dx * dx)) * (w.data[2:] - 2*w.data[1:-1] + w.data[:-2])
-    #w.data w.data2 = w.data2, w.data
-
-end
-
-function send_ghosts(w::Worker)
-
-    enqueue!(w.leftThread.right,w.data[1])
-    enqueue!(w.rightThread.left,w.data[1-2])
-
-end
-
-function run(w::Worker)
-
-    send_ghosts(w)
-
-    for n in range(nt)
-        update(w)
+    if i == 0 && direction == -1
+        return nx - 1
     end
 
-    recv_ghosts(w)
-end
+    if i == nx - 1 && direction == +1
+        return 0
 
-function construct_grid(th::Array{Worker})
-
-    total = zeros(nx,1)
-    for t in th 
-        total[t.lo + ghosts:t.hi - ghosts] = t.data[ghosts:-ghosts]
     end
 
-    #print("Stats:",np.min(total),np.average(total),np.max(total))
-    return total
+    @assert ((i + direction) < nx)
+
+    return i + direction
+
 end
 
-# main
-th = Array{Worker}(Worker(num=-1,tx=-1),nthreads)
+function heat(left, middle, right)
 
-tx = (2*ghosts+nx)
-
-
-for num in range(1,nthreads,1)
-   println(Int(num))
-   #println(size(th))
-   #th[Int(num)] = Worker(num = nx,tx=tx)
-   #push!(th,Worker(num = nx,tx=tx))
-   #insert!(th,num,Worker(num = nx,tx=tx))
+    return middle + (k * dt / (dx * dx)) * (left - 2 * middle + right)
 end
 
-println("end")
+function work(future, current, p,threads)
+    len = Int(round(nx / threads))
+    start = p * len + 1 
+    last = (p+1) * len 
 
-#for i in range(1,nthreads)
-#    th[i].rightThread = th[(i+1) % nthreads + 1]q
-#    #th[(i+1)%nthreads+1].leftThread = th[i]
-#end
+    if p == threads-1
+        last = nx 
+    end
 
-#tasks = []
+    n = length(current)
+    for i in range(start, last)
+        future[i] = heat(current[(i-1)%n+1],
+                         current[i], current[(i+1)%n+1])
+    end
+    
+end
 
-#t1 = time.time()
-#for t in th
-#    task = @task run(t)
-#    schedule(task)
-#    push!(tasks,task)
-#end
-#for task in tasks 
-#    wait(task)
-#end
-#t2 = time.time()
+
+
+space = [zeros(nx), zeros(nx)]
+
+for i in range(1, nx)
+    space[1][i] = i
+end
+
+for t in range(1, nt)
+    current = space[t % 2+1]
+    future = space[(t+1) % 2+1]
+
+    tasks = []
+  
+    for i in 0:nthreads-1
+        push!(tasks,@async work(future,current,i,nthreads))
+        
+    end
+
+    for t in tasks
+        wait(t)
+    end
+end
+
+fn = "perfdata.csv"
+
+if isfile(fn) == false
+   
+    file = open(fn, "w")
+    write(file, "lang,nx,nt,threads,dt,dx,total time,flops\n")
+    close(file)
+end
+file = open(fn, "a")
+write(file, PROGRAM_FILE*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(0)*"\n")
+close(file)
