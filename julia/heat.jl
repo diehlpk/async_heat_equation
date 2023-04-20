@@ -16,9 +16,10 @@ addprocs(workers,
             exeflags=`--optimize=3 --inline=yes --check-bounds=no --math-mode=fast`)
 
 nx = parse(Int64,ARGS[3])        # number of nodes
-k = 0.5                      # heat transfer coefficient
+k = 0.4                      # heat transfer coefficient
 dt = 1.                      # time step
 dx = 1.                      # grid spacing
+alp = k*dt/(dx*dx)             # alpha
 nt = parse(Int64,ARGS[2])        # number of time steps
 nthreads = parse(Int64,ARGS[1])    # numnber of threads  
 
@@ -38,7 +39,7 @@ for t in range(1, nt)
   
     for i in 0:nthreads-1
         #push!(tasks,remotecall(work,i+1,future,current,i,nthreads))
-        push!(tasks,@spawnat i+1 work(future,current,i,nthreads))
+        push!(tasks,@spawnat i+1 work(future,current,i,nthreads,nx,alp))
     end
 
     #Threads.@threads for i in 0:1
