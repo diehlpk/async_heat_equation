@@ -8,9 +8,10 @@ module load python/3.10.5
 PYTHON=0
 SWIFT=0
 RUST=0
-GO=1
+GO=0
 CHAPEL=0
 CXX=0
+JULIA=1
 
 TIME=1000
 SIZE=1000000
@@ -93,4 +94,18 @@ then
 
     cd ../
 fi
+
+
+if [ "${JULIA}" == "1" ]
+then
+    cd julia
+    
+    for i in {40..0..2}
+    do 
+        /work/diehlpk/Compile/all/julia-1.8.5/bin/julia -O3 --threads $i heat_ghost.jl  $i ${TIME} ${SIZE}  
+    done
+
+    cd ../
+fi
+
 

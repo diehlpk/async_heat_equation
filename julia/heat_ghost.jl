@@ -19,7 +19,8 @@ nthreads = parse(Int64,ARGS[1])    # numnber of threads
 
 alp::Float64 = k*dt/(dx*dx)
 
-tx::Int64 = (2*ghosts+nx)/nthreads
+tx::Int64 = floor.((2*ghosts+nx)/nthreads)
+println(tx)
 
 #Base.@kwdef mutable struct Worker
 
@@ -69,7 +70,7 @@ end
 
 #@everywhere
 function work(num)
-    print("Start work: ",num,"\n")
+    #print("Start work: ",num,"\n")
     first = 1
     second = 2
     lo::Int64 = tx*num
@@ -116,7 +117,7 @@ function work(num)
     #print("End Evo\n")
     data[first][1] = pop_queue(leftq, num)
     data[first][sz] = pop_queue(rightq, num)
-    print("Finis!",data[first],"\n")
+    #print("Finis!",data[first],"\n")
 end
 
 totalTime = @elapsed begin
