@@ -87,7 +87,8 @@ for name in xdata:
         print()
         xv2 = np.asarray(range(1,round(1+max(xdata[name]))))
         yv2 = rt(xv2,*r[0])
-        plt.semilogy(xv2,yv2,'-',label='fit '+fix,color=color)
+        plt.semilogy(xv2,yv2,'-',color=color)
+        #plt.semilogy(xv2,yv2,'-',label='fit '+fix,color=color)
 plt.legend()
 ax = plt.gca()
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
