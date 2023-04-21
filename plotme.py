@@ -3,6 +3,7 @@ import os
 import re
 #from math import round
 import sys
+import numpy
 
 file=sys.argv[1]
 
@@ -34,6 +35,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit as cf
 
+
 def fixname(s):
     while True:
         n = re.sub(r'(\d)(\d\d\d)\b',r'\1,\2',s)
@@ -57,7 +59,7 @@ for name in xdata:
             bounds_upper = [np.inf, 1, 1, 1, 1]
             bounds_lower = [0 for x in bounds_upper]
             bounds = (tuple(bounds_lower), tuple(bounds_upper))
-            r = cf(rt,xv,yv,maxfev=5000,bounds=bounds)
+            r  = cf(rt,xv,yv,maxfev=5000,bounds=bounds)
         except Exception as e:
             print("Could not fit curve for:",name,e)
             continue
@@ -79,6 +81,9 @@ for name in xdata:
             overheads += 1
         if overheads == 0:
             print("   No appreciable overheads")
+        corr_matrix = numpy.corrcoef(xv,yv)
+        corr = corr_matrix[0,1]
+        print("r2 = ",corr**2)
         print()
         xv2 = np.asarray(range(1,round(1+max(xdata[name]))))
         yv2 = rt(xv2,*r[0])
