@@ -14,6 +14,9 @@ if "DISPLAY" not in os.environ:
 xdata = {}
 ydata = {}
 
+name_to_nx = {}
+name_to_nt = {}
+
 with open('perfdata-'+file+'.csv','r',newline='') as cfd:
     skip = True
     for row in csv.reader(cfd):
@@ -24,6 +27,16 @@ with open('perfdata-'+file+'.csv','r',newline='') as cfd:
         name = row[0]
         nx = row[1]
         nt = row[2]
+        if name in name_to_nt:
+            if name_to_nt[name] != nt:
+                print("WARNING: Multiple values of nt were used")
+        else:
+            name_to_nt[name] = nt
+        if name in name_to_nx:
+            if name_to_nx[name] != nx:
+                print("WARNING: Multiple values of nx were used")
+        else:
+            name_to_nx[name] = nx
         if name not in xdata:
             xdata[name] = []
             ydata[name] = []
