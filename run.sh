@@ -102,7 +102,7 @@ then
     
     for i in {40..0..2}
     do 
-        /work/diehlpk/Compile/all/julia-1.8.5/bin/julia -O3 --threads $i heat_ghost.jl  $i ${TIME} ${SIZE}  
+        /work/diehlpk/Compile/all/julia-1.8.5/bin/julia -O3 --threads $i heat_ghost.jl  $i ${TIME} ${SIZE} > data.csv 
     done
 
     cd ../

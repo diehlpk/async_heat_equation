@@ -5,8 +5,6 @@
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #using Distributed
 
-println(PROGRAM_FILE)
-
 check_correctness = false
 
 ghosts = 1
@@ -134,3 +132,16 @@ totalTime = @elapsed begin
     end
 end
 print("total time: ",totalTime,"\n")
+
+fn = "perfdata.csv"
+
+if isfile(fn) == false
+
+    file = open(fn, "w")
+    write(file, "lang,nx,nt,threads,dt,dx,total time,flops\n")
+    close(file)
+end
+file = open(fn, "a")
+write(file, PROGRAM_FILE*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(totalTime)*","*string(0)*"\n")
+close(file)
+
