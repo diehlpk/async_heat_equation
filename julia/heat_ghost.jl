@@ -11,114 +11,112 @@ check_correctness = false
 
 ghosts = 1
 nx = parse(Int64,ARGS[3])        # number of nodes
-k = 0.5                      # heat transfer coefficient
+k = 0.4                      # heat transfer coefficient
 dt = 1.                      # time step
 dx = 1.                      # grid spacing
 nt = parse(Int64,ARGS[2])        # number of time steps
 nthreads = parse(Int64,ARGS[1])    # numnber of threads    
 
-Base.@kwdef mutable struct Worker
+alp::Float64 = k*dt/(dx*dx)
+
+tx::Int64 = (2*ghosts+nx)/nthreads
+
+#Base.@kwdef mutable struct Worker
 
 num::Int64 = -1 
-tx::Int64 = -1
 lo::Int64 = tx * num - ghosts
 hi::Int64 = tx * (num+1) + ghosts
-sz::Int64 = hi -lo
+sz::Int64 = hi - lo
 
-#@assert sz > 0
+#---- Start implement the queues---"
+qsize::Int64 = 12
+qarray = zeros(Float64,2*qsize*nthreads) 
+qhead = zeros(Int64,2*nthreads)
+qtail = zeros(Int64,2*nthreads)
+leftq = 1
+rightq = 0
 
-#right::Queue[Float64] = Queue[Float64]()
-#left::Queue[Float64] = Queue[Float64]()
-
-off = 1
-
-data = lo+off:(hi-1+off)/(hi-lo):(hi-1+off)
-data2 = zeros(sz,1)
-
-leftThread::Worker = Worker(num=-1,tx=-1)
-rightThread::Worker = Worker(num=-1,tx=-1)
-
+function push_queue(left_right, threadno, val)
+    qno = left_right + 2 * threadno 
+    t = qtail[qno+1]
+    idx = qno * qsize + t % qsize + 1
+    #print("push: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
+    qarray[idx] = val
+    qtail[qno+1] += 1
 end
 
-function recv_ghosts(w::Worker)
-
-w.data[0] = w.left.get()
-w.data[-1] = w.right.get()
-
-end
-
-function update(w::Worker)
-
-    recv_ghosts(w)
-
-    #w.data2[1:-1] = w.data[1:-1] + (k * dt / (dx * dx)) * (w.data[2:] - 2*w.data[1:-1] + w.data[:-2])
-    #w.data w.data2 = w.data2, w.data
-
-end
-
-function send_ghosts(w::Worker)
-
-    enqueue!(w.leftThread.right,w.data[1])
-    enqueue!(w.rightThread.left,w.data[1-2])
-
-end
-
-function run(w::Worker)
-
-    send_ghosts(w)
-
-    for n in range(nt)
-        update(w)
+function pop_queue(left_right, threadno)
+    qno = left_right + 2 * threadno 
+    h = qhead[qno+1]
+    idx = qno * qsize + h % qsize + 1
+    #print("pop: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
+    t = qtail[qno+1]
+    while h == t
+        sleep(0)
+        t = qtail[qno]
     end
-
-    recv_ghosts(w)
+    val = qarray[idx]
+    qhead[qno+1] += 1
+    return val
 end
 
-function construct_grid(th::Array{Worker})
+#---- End implement the queues---"
 
-    total = zeros(nx,1)
-    for t in th 
-        total[t.lo + ghosts:t.hi - ghosts] = t.data[ghosts:-ghosts]
+function work(num)
+    print("Start work: ",num,"\n")
+    first = 1
+    second = 2
+    lo::Int64 = tx*num
+    hi::Int64 = tx*(num+1)
+    if hi > nx
+        hi = nx
     end
+    lo -= ghosts
+    hi += ghosts
+    sz = hi - lo
+    data = [zeros(Float64,sz),zeros(Float64,sz)]
+    off = 1
+    ip1 = (num + 1) % nthreads
+    im1 = (num + nthreads - 1) % nthreads
 
-    #print("Stats:",np.min(total),np.average(total),np.max(total))
-    return total
+    #print("Init work: ",num," sz: ",sz,"\n")
+    for i in range(lo + off, lo + off + sz - 1)
+        #print("Init loop: ",num," i: ",i," i-lo: ",i-lo,"\n")
+        data[first][i - lo] = i 
+    end
+    #print("Post Init work: ",num,"\n")
+
+    # send
+    push_queue(rightq, im1, data[first][2])
+    push_queue(leftq, ip1, data[first][sz-1])
+    #print("Pre loop: ",num,"\n")
+    for nt in range(1,nt)
+        print("nt: ",nt," ",data[first],"\n")
+        data[first][1] = pop_queue(leftq, num)
+        data[first][sz] = pop_queue(rightq, num)
+
+        #print("Update: nt: ",nt," num: ",num,"\n")
+        for i in range(2,sz-1)
+            data[second][i] = data[first][i] + alp*(data[first][i+1] + data[first][i-1] - 2*data[first][i])
+        end
+        push_queue(rightq, im1, data[first][2])
+        push_queue(leftq, ip1, data[first][sz-1])
+        # swap
+        first = 3 - first
+        second = 3 - second
+    end
+    data[first][1] = pop_queue(leftq, num)
+    data[first][sz] = pop_queue(rightq, num)
 end
 
-# main
-Base.zero(::Worker) = Worker(num=-1,tx=-1)
-Base.zero(::Type{Worker}) = Worker(num=-1,tx=-1)
-
-th = zeros(Worker,nthreads)
-
-#Vector{Worker}(Worker(num=-1,tx=-1),nthreads)
-
-tx = (2*ghosts+nx)
-
-
-for num in range(1,nthreads)
-   #println(size(th))
-   #th[Int(num)] = Worker(num = nx,tx=tx)
-   #push!(th,Worker(num = nx,tx=tx))
-   #insert!(th,num,Worker(num = nx,tx=tx))
+totalTime = @elapsed begin
+    tasks = []
+    for i in 0:nthreads-1
+        print("task: ",i+1)
+        push!(tasks,@spawnat i+1 work(i))
+    end
+    for th in tasks
+        wait(th)
+    end
 end
-
-println("end")
-
-#for i in range(1,nthreads)
-#    th[i].rightThread = th[(i+1) % nthreads + 1]q
-#    #th[(i+1)%nthreads+1].leftThread = th[i]
-#end
-
-#tasks = []
-
-#t1 = time.time()
-#for t in th
-#    task = @task run(t)
-#    schedule(task)
-#    push!(tasks,task)
-#end
-#for task in tasks 
-#    wait(task)
-#end
-#t2 = time.time()
+print("total time: ",totalTime,"\n")
