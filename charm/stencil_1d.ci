@@ -1,0 +1,44 @@
+mainmodule heat1d {
+  readonly CProxy_Main mainProxy;
+  readonly int grid_size;
+  readonly int chare_grid_size;
+  readonly int num_chares;
+  readonly int total_time_steps;
+
+  readonly double k;
+  readonly double dt;
+  readonly double dx;
+
+  mainchare Main {
+    entry Main(CkArgMsg *m);
+    entry [reductiontarget] void done();
+  };
+
+  array [1D] Jacobi {
+    entry Jacobi(void);
+    entry void send_ghosts(int iter, int dir, double gh);
+
+    entry void run() {
+      while (curr_time_step < total_time_steps) {
+        serial "send_to_neighbors" {
+          curr_time_step++;
+          thisProxy((thisIndex - 1 + num_chares) % num_chares).send_ghosts(curr_time_step, RIGHT, temperature.front());
+          thisProxy((thisIndex + 1) % num_chares).send_ghosts(curr_time_step, LEFT, temperature.back());
+        }
+        for(imsg = 0; imsg < neighbors; imsg++)
+          when send_ghosts[curr_time_step] (int iter, int dir, double ghost)
+            serial "update_boundary" {
+              if (dir == LEFT)
+                temperature.front() = ghost;
+              else
+                temperature.back() = ghost;
+            }
+        serial "compute" { compute(); }
+      }
+      serial "end_compute" {
+        CkCallback cb(CkReductionTarget(Main, done), mainProxy);
+        contribute(0, 0, CkReduction::nop, cb);
+      }
+    };
+  };
+};
