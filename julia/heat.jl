@@ -4,16 +4,17 @@
 #  Distributed under the Boost Software License, Version 1.0. (See accompanying
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #using DataStructures
-using Distributed
+#using Distributed
 
-@everywhere include("util.jl")
+#@everywhere
+include("util.jl")
 
 workers = Threads.nthreads()
 
-addprocs(workers, 
-            restrict=true, 
-            enable_threaded_blas=true,
-            exeflags=`--optimize=3 --inline=yes --check-bounds=no --math-mode=fast`)
+#addprocs(workers, 
+#            restrict=true, 
+#            enable_threaded_blas=true,
+#            exeflags=`--optimize=3 --inline=yes --check-bounds=no --math-mode=fast`)
 
 nx = parse(Int64,ARGS[3])        # number of nodes
 k = 0.4                      # heat transfer coefficient
@@ -35,21 +36,21 @@ for t in range(1, nt)
     current = space[t % 2+1]
     future = space[(t+1) % 2+1]
 
-    tasks = []
+    #tasks = []
   
-    for i in 0:nthreads-1
-        #push!(tasks,remotecall(work,i+1,future,current,i,nthreads))
-        push!(tasks,@spawnat i+1 work(future,current,i,nthreads,nx,alp))
-    end
-
-    #Threads.@threads for i in 0:1
-     #   #println(i)
-     #   work(future,current,i,nthreads)    
+    #for i in 0:nthreads-1
+    #    #push!(tasks,remotecall(work,i+1,future,current,i,nthreads))
+    #    push!(tasks,@spawnat i+1 work(future,current,i,nthreads,nx,alp))
     #end
 
-    for t in tasks
-        wait(t)
+    Threads.@threads for i in 0:nthreads-1
+        #println(i)
+        work(future,current,i,nthreads,nx,alp)
     end
+
+    #for t in tasks
+    #    wait(t)
+    #end
 end
 
 end
