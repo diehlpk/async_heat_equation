@@ -19,8 +19,7 @@ nthreads = parse(Int64,ARGS[1])    # numnber of threads
 
 alp::Float64 = k*dt/(dx*dx)
 
-tx::Int64 = floor.((2*ghosts+nx)/nthreads)
-println(tx)
+tx::Int64 = floor((2*ghosts+nx)/nthreads)
 
 #Base.@kwdef mutable struct Worker
 
@@ -54,7 +53,7 @@ function pop_queue(left_right, threadno)
     t = qtail[qno+1]
     while h == t
         sleep(0)
-        t = qtail[qno]
+        t = qtail[qno+1]
     end
     val = qarray[idx]
     qhead[qno+1] += 1
