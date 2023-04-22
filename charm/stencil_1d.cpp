@@ -14,13 +14,13 @@
 /* readonly */ double dx;
 
 #define TOTAL_TIME_STEPS 100
-#define LEFT 1
-#define RIGHT 1
 
 class Main : public CBase_Main
 {
     double start_time;
     double total_time;
+
+    CProxy_Jacobi jacobi;
 
 public:
     Main(CkArgMsg* m)
@@ -37,16 +37,24 @@ public:
         dx = 1.;
 
         if (grid_size % num_chares != 0)
-            CkAbort("Grid Size is not a multiple of Num Chares");
+            ckout << "Grid Size is not a multiple of Num Chares. Last Chare will hold remaining grid nodes" << endl;
         
         mainProxy = thisProxy;
         chare_grid_size = grid_size / num_chares;
 
-        CProxy_Jacobi jacobi = CProxy_Jacobi::ckNew(num_chares);
+        ckout << "Stencil Info:" << endl;
+        ckout << "[Grid Size] " << grid_size << endl;
+        ckout << "[Num Time Steps] " << total_time_steps << endl;
+        ckout << "[Grid Size per Thread] " << chare_grid_size << endl;
 
+        jacobi = CProxy_Jacobi::ckNew(num_chares);
+    }
+
+    void init()
+    {
         // Start Timer
         start_time = CkWallTimer();
-        jacobi.run();
+        jacobi.start_jacobi();
     }
 
     void done()
@@ -80,6 +88,8 @@ public:
     array1d temperature;
     array1d new_temperature;
 
+    std::size_t local_grid_size;
+
     // SDAG variables
     std::size_t imsg;
     std::size_t neighbors;
@@ -89,14 +99,25 @@ public:
     Jacobi()
     : temperature(chare_grid_size + 2)
     , new_temperature(chare_grid_size + 2)
+    , local_grid_size(chare_grid_size)
     , imsg(0)
     , neighbors(2)
     , curr_time_step(0)
     , istart(1)
     , ifinish(chare_grid_size + 1)
     {
+        if (thisIndex == num_chares - 1 && grid_size % num_chares != 0) {
+            local_grid_size += (grid_size % num_chares);
+            temperature.resize(local_grid_size + 2);
+            new_temperature.resize(local_grid_size + 2);
+            ifinish = local_grid_size + 1;
+        }
+            
         for (std::size_t i = 0; i != temperature.size(); ++i)
             temperature[i] = thisIndex * chare_grid_size + i - 1;
+        
+        CkCallback cb(CkReductionTarget(Main, init), mainProxy);
+        contribute(0, 0, CkReduction::nop, cb);
     }
 
     Jacobi(CkMigrateMessage* m) {}
@@ -111,12 +132,13 @@ public:
         p | ifinish;
     }
 
-    void compute()
+    void start_jacobi()
     {
-        for (std::size_t i = istart; i != ifinish; ++i)
-            new_temperature[i] = temperature[i] + k * (dt / (dx * dx)) * (temperature[i + 1] + temperature[i - 1] - 2 * temperature[i]); 
+        curr_time_step++;
+        thisProxy((thisIndex - 1 + num_chares) % num_chares).send_ghost_left(curr_time_step, temperature.front());
+        thisProxy((thisIndex + 1) % num_chares).send_ghost_right(curr_time_step, temperature.back());
 
-        temperature.swap(new_temperature);
+        thisProxy.run();
     }
 };
 

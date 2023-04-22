@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 source "$HOME/.cargo/env"
-
+CHARM_DIR=/work/diehlpk/Compile/medusa/charm/bin/
 module load gcc/12.2.0
 module load python/3.10.5
 
@@ -11,7 +11,8 @@ RUST=0
 GO=0
 CHAPEL=0
 CXX=0
-JULIA=1
+JULIA=0
+CHARM=1
 
 TIME=1000
 SIZE=1000000
@@ -103,6 +104,22 @@ then
     for i in {40..0..2}
     do 
         /work/diehlpk/Compile/all/julia-1.8.5/bin/julia -O3 --threads $i heat_ghost.jl  $i ${TIME} ${SIZE} > data.csv 
+    done
+
+    cd ../
+fi
+
+
+if [ "${CHARM}" == "1" ]
+then
+    cd charm
+
+    $CHARM_DIR/charmc stencil_1d.ci
+    $CHARM_DIR/charmc stencil_1d.cpp -c++-option -std=c++17 -lstdc++fs -o stencil_1d -O3 -march=native
+
+    for i in {40..0..2}
+    do 
+    ./charmrun ./stencil_1d +p $i $((2*${i})) ${TIME} ${SIZE}
     done
 
     cd ../
