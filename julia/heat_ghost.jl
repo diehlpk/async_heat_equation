@@ -60,12 +60,6 @@ end
 
 #---- End implement the queues---"
 
-#@everywhere
-function work0(num)
-    print("Start work0: ",num,"\n")
-end 
-
-#@everywhere
 function work(num)
     #print("Start work: ",num,"\n")
     first = 1
