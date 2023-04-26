@@ -6,15 +6,9 @@
 #using DataStructures
 #using Distributed
 
-#@everywhere
 include("util.jl")
 
 workers = Threads.nthreads()
-
-#addprocs(workers, 
-#            restrict=true, 
-#            enable_threaded_blas=true,
-#            exeflags=`--optimize=3 --inline=yes --check-bounds=no --math-mode=fast`)
 
 nx = parse(Int64,ARGS[3])        # number of nodes
 k = 0.4                      # heat transfer coefficient
@@ -31,34 +25,19 @@ for i in range(1, nx)
 end
 
 totalTime = @elapsed begin
+    for t in range(1, nt)
+        current = space[t % 2+1]
+        future = space[(t+1) % 2+1]
 
-for t in range(1, nt)
-    current = space[t % 2+1]
-    future = space[(t+1) % 2+1]
-
-    #tasks = []
-  
-    #for i in 0:nthreads-1
-    #    #push!(tasks,remotecall(work,i+1,future,current,i,nthreads))
-    #    push!(tasks,@spawnat i+1 work(future,current,i,nthreads,nx,alp))
-    #end
-
-    Threads.@threads for i in 0:nthreads-1
-        #println(i)
-        work(future,current,i,nthreads,nx,alp)
+        Threads.@threads for i in 0:nthreads-1
+            work(future,current,i,nthreads,nx,alp)
+        end
     end
-
-    #for t in tasks
-    #    wait(t)
-    #end
-end
-
 end
 
 fn = "perfdata.csv"
 
 if isfile(fn) == false
-   
     file = open(fn, "w")
     write(file, "lang,nx,nt,threads,dt,dx,total time,flops\n")
     close(file)

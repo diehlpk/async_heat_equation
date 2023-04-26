@@ -1,0 +1,7 @@
+Rust code:
+    - Can gaurantee there are no race conditions (but not necessarily deadlocks) or memory leaks
+
+Cognitive effort:
+    - Rust: Understanding it's notion of ownership
+    - Chapel: Trivial parallelization forall coforall
+    - Swift: Is unsafe needed? What guarantee is lost?
