@@ -18,6 +18,23 @@ From fedora:37
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install g++ python golang julia  -y
+RUN dnf install g++ python golang julia -y
+RUN dnf install gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel -y
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+ENV CHPL_VER=1.30.0
+RUN curl -LO https://github.com/chapel-lang/chapel/releases/download/${CHPL_VER}/chapel-${CHPL_VER}.tar.gz
+RUN tar xzf chapel-${CHPL_VER}.tar.gz
+WORKDIR chapel-${CHPL_VER}
+RUN source util/quickstart/setchplenv.bash && make -j4
+RUN ln -s "/chapel-${CHPL_VER}/bin/linux64-x86_64/chpl" /usr/local/bin/chpl
 ENV PATH="/root/.cargo/bin:${PATH}"
+ENV CHPL_GMP=none
+ENV CHPL_HOME=/chapel-1.30.0
+ENV CHPL_MEM=cstdlib
+ENV CHPL_HOST_MEM=cstdlib
+ENV CHPL_TASKS=fifo
+ENV CHPL_COMM=none
+ENV CHPL_LLVM=none
+ENV CHPL_RE2=none
+WORKDIR /
+RUN git clone https://github.com/diehlpk/async_heat_equation
