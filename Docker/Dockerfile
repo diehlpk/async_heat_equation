@@ -38,3 +38,7 @@ ENV CHPL_LLVM=none
 ENV CHPL_RE2=none
 WORKDIR /
 RUN git clone https://github.com/diehlpk/async_heat_equation
+WORKDIR async_heat_equation
+RUN dnf install python3-numpy -y
+RUN dnf install vim -y
+RUN chmod 755 /root
