@@ -37,6 +37,10 @@ ENV CHPL_COMM=none
 ENV CHPL_LLVM=none
 ENV CHPL_RE2=none
 WORKDIR /
+RUN  git clone https://github.com/UIUC-PPL/charm
+WORKDIR charm
+RUN ./build charm++ multicore-linux-x86_64 gcc --with-production
+WORKDIR /
 RUN git clone https://github.com/diehlpk/async_heat_equation
 WORKDIR async_heat_equation
 RUN dnf install python3-numpy -y
