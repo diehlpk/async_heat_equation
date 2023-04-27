@@ -136,6 +136,6 @@ if isfile(fn) == false
     close(file)
 end
 file = open(fn, "a")
-write(file, "heat_ghost"*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(totalTime)*","*string(0)*"\n")
+write(file, "julia"*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(totalTime)*","*string(0)*"\n")
 close(file)
 

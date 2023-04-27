@@ -5,7 +5,10 @@ import re
 import sys
 import numpy
 
-file=sys.argv[1]
+if len(sys.argv)==2:
+    file='-'+sys.argv[1]
+else:
+    file=""
 
 
 if "DISPLAY" not in os.environ:
@@ -17,7 +20,7 @@ ydata = {}
 name_to_nx = {}
 name_to_nt = {}
 
-with open('perfdata-'+file+'.csv','r',newline='') as cfd:
+with open('perfdata'+file+'.csv','r',newline='') as cfd:
     skip = True
     for row in csv.reader(cfd):
         if skip:
@@ -113,4 +116,6 @@ plt.title("nx="+nx+" and nt="+nt)
 plt.savefig('plot-'+file+'.pdf',bbox_inches='tight')
 plt.savefig('plot-'+file+'.png',bbox_inches='tight')
 plt.tight_layout()
+print("Saving to plotme.png")
+plt.savefig("plotme.png")
 plt.show()

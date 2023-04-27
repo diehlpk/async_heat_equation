@@ -18,9 +18,13 @@ From fedora:37
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install g++ python golang julia swift-lang -y
-RUN dnf install gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel -y
+RUN dnf install g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel python3-numpy vim hpx -y
+
+# Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+RUN chmod 755 /root
+
+# Chapel
 ENV CHPL_VER=1.30.0
 RUN curl -LO https://github.com/chapel-lang/chapel/releases/download/${CHPL_VER}/chapel-${CHPL_VER}.tar.gz
 RUN tar xzf chapel-${CHPL_VER}.tar.gz
@@ -37,12 +41,13 @@ ENV CHPL_COMM=none
 ENV CHPL_LLVM=none
 ENV CHPL_RE2=none
 WORKDIR /
+
+# Charm
 RUN  git clone https://github.com/UIUC-PPL/charm
 WORKDIR charm
 RUN ./build charm++ multicore-linux-x86_64 gcc --with-production
+
+# The Repo
 WORKDIR /
 RUN git clone https://github.com/diehlpk/async_heat_equation
 WORKDIR async_heat_equation
-RUN dnf install python3-numpy -y
-RUN dnf install vim -y
-RUN chmod 755 /root

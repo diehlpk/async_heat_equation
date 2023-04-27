@@ -1,0 +1,49 @@
+mainmodule heat1d {
+  readonly CProxy_Main mainProxy;
+  readonly int grid_size;
+  readonly int chare_grid_size;
+  readonly int num_chares;
+  readonly int total_time_steps;
+
+  readonly double k;
+  readonly double dt;
+  readonly double dx;
+
+  mainchare Main {
+    entry Main(CkArgMsg *m);
+    entry [reductiontarget] void init();
+    entry [reductiontarget] void done();
+  };
+
+  array [1D] Jacobi {
+    entry Jacobi(void);
+    entry void start_jacobi();
+    entry [expedited] void send_ghost_left(int iter, double gh);
+    entry [expedited] void send_ghost_right(int iter, double gh);
+
+    entry void run() {
+      while (curr_time_step < total_time_steps) {
+        when send_ghost_left[curr_time_step](int iter, double left)
+        when send_ghost_right[curr_time_step](int iter, double right) {
+          serial "update_boundary" {
+            temperature.front() = left;
+            temperature.back() = right;
+
+            for (std::size_t i = istart; i != ifinish; ++i)
+              new_temperature[i] = temperature[i] + k * (dt / (dx * dx)) * (temperature[i + 1] + temperature[i - 1] - 2 * temperature[i]); 
+
+            temperature.swap(new_temperature);
+
+            curr_time_step++;
+            thisProxy((thisIndex - 1 + num_chares) % num_chares).send_ghost_left(curr_time_step, temperature.front());
+            thisProxy((thisIndex + 1) % num_chares).send_ghost_right(curr_time_step, temperature.back());
+          }
+        }
+      }
+      serial "end_compute" {
+        CkCallback cb(CkReductionTarget(Main, done), mainProxy);
+        contribute(0, 0, CkReduction::nop, cb);
+      }
+    };
+  };
+};

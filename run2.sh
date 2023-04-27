@@ -6,17 +6,20 @@ fi
 source ~/.cargo/env
 make -f run2.mk
 
-CHARM_DIR=/work/diehlpk/Compile/medusa/charm/bin/
+CHARM_RUN=/charm/multicore-linux-x86_64-gcc/bin/charmrun
 source /root/.cargo/env
 
+set -e
+
 PYTHON=1
-SWIFT=0
+SWIFT=1
 RUST=1
 GO=1
 CHAPEL=1
 CXX=1
 JULIA=1
-CHARM=0
+CHARM=1
+HPX=1
 
 TIME=1000
 SIZE=100000
@@ -31,21 +34,21 @@ then
     echo "RUNNING PYTHON"
     for i in $(seq 1 $CPUS)
     do 
-        python3 python/heat2.py $i ${TIME} ${SIZE} 0 
+        echo python3 python/heat/heat_ghosts.py $i ${TIME} ${SIZE} 0 
+        python3 python/heat/heat_ghosts.py $i ${TIME} ${SIZE} 0 
     done
 
 fi
 
 if [ "${SWIFT}" == "1" ]
 then
-    cd swift/heat
-
-    for i in $(seq 1 $CPUS)
+    echo
+    echo "RUNNING SWIFT"
+    for i in $(seq 3 $CPUS)
     do 
-        ./heat_3 $i ${TIME} ${SIZE} >> perfstat.csv
+        echo ./swift/heat/heat_ghosts $i ${TIME} ${SIZE} 
+        ./swift/heat/heat_ghosts $i ${TIME} ${SIZE} >> perfdata.csv
     done
-
-    cd ../..
 fi
 
 
@@ -55,6 +58,7 @@ then
     echo "RUNNING RUST"
     for i in $(seq 1 $CPUS)
     do 
+        echo ./rust/heat/target/release/heat $i ${TIME} ${SIZE}
         ./rust/heat/target/release/heat $i ${TIME} ${SIZE}
     done
 fi
@@ -66,6 +70,7 @@ then
     echo "RUNNING GO"
     for i in $(seq 1 $CPUS)
     do 
+        echo ./go/heat/main $i ${TIME} ${SIZE}
         ./go/heat/main $i ${TIME} ${SIZE}
     done
 fi
@@ -78,7 +83,8 @@ then
     # Deadlocks for 1
     for i in $(seq 2 $CPUS)
     do 
-        CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat_ghost --nx ${SIZE} --nt ${TIME} >> perfdata.csv
+        echo CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nx ${SIZE} --nt ${TIME}
+        CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nx ${SIZE} --nt ${TIME} >> perfdata.csv
     done
 fi
 
@@ -89,7 +95,20 @@ then
     echo "RUNNING C++"
     for i in $(seq 1 $CPUS)
     do 
-        ./cxx/heat $i ${TIME} ${SIZE}  
+        echo ./cxx/heat/heat_ghosts $i ${TIME} ${SIZE}  
+        ./cxx/heat/heat_ghosts $i ${TIME} ${SIZE}  
+    done
+fi
+
+
+if [ "${HPX}" == "1" ]
+then
+    echo
+    echo "RUNNING HPX"
+    for i in $(seq 1 $CPUS)
+    do 
+        echo ./hpx/heat/build/bin/heat_ghosts $i ${TIME} ${SIZE}  
+        ./hpx/heat/build/bin/heat_ghosts $i ${TIME} ${SIZE}  
     done
 fi
 
@@ -100,24 +119,20 @@ then
     echo "RUNNING JULIA"
     for i in $(seq 2 ${CPUS})
     do 
-        julia -O3 --threads $i ./julia/heat_ghost.jl  $i ${TIME} ${SIZE} >> perfdata.csv 
+        echo julia -O3 --threads $i ./julia/heat/heat_ghosts.jl  $i ${TIME} ${SIZE} 
+        julia -O3 --threads $i ./julia/heat/heat_ghosts.jl  $i ${TIME} ${SIZE} >> perfdata.csv 
     done
 fi
 
 
 if [ "${CHARM}" == "1" ]
 then
-    cd charm
+    echo
+    echo "RUNNING CHARM"
 
-    $CHARM_DIR/charmc stencil_1d.ci
-    $CHARM_DIR/charmc stencil_1d.cpp -c++-option -std=c++17 -lstdc++fs -o stencil_1d -O3 -march=native
-
-    for i in {${CPUS}..0..2}
+    for i in $(seq 1 $CPUS)
     do 
-    ./charmrun ./stencil_1d +p $i $((2*${i})) ${TIME} ${SIZE}
+      echo '$CHARM_RUN' ./charm/heat/heat_ghosts +p $i $((2*${i})) ${TIME} ${SIZE}
+      $CHARM_RUN ./charm/heat/heat_ghosts +p $i $((2*${i})) ${TIME} ${SIZE}
     done
-
-    cd ../
 fi
-
-
