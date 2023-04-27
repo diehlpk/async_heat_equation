@@ -21,6 +21,8 @@ jobs:
           - image: diehlpk/monte-carlo-codes:latest
         steps:
             - checkout
+            - run: cd julia && julia -O3 --threads 2 heat.jl 2 5 1000
+            - run: cd julia && julia -O3 --threads 2 heat_ghost.jl 2 5 1000
             - run: cd cxx && g++ -o heat -O3 -std=c++17 heat.cxx -pthread
             - run: cd rust/monte && cargo build --release
             - run: cd rust/heat && cargo build --release
