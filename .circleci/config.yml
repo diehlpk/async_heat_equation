@@ -22,7 +22,7 @@ jobs:
         steps:
             - checkout
             - run: cd chapel && chpl --fast heat_ghost.chpl 
-            - run: cd swift/heat && swiftc -O heat_3.swiftt
+            - run: cd swift/heat && swiftc -O heat_3.swift
             - run: cd julia && julia -O3 --threads 2 heat.jl 2 5 1000
             - run: cd julia && julia -O3 --threads 2 heat_ghost.jl 2 5 1000
             - run: cd cxx && g++ -o heat -O3 -std=c++17 heat.cxx -pthread
