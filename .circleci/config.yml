@@ -21,7 +21,7 @@ jobs:
           - image: diehlpk/monte-carlo-codes:latest
         steps:
             - checkout
-            - run: cd chapel/heat && chpl --fast heat_ghosts.chpl 
+            - run: cd chapel/heat && chpl --fast heat.chpl 
             - run: cd swift/heat && swiftc -O heat_ghosts.swift
             - run: cd julia/heat && julia -O3 --threads 2 heat_ghosts.jl 2 5 1000
             - run: cd julia/heat && julia -O3 --threads 2 heat_ghosts.jl 2 5 1000
