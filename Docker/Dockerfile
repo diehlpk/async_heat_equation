@@ -18,7 +18,7 @@ From fedora:37
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install g++ python golang julia -y
+RUN dnf install g++ python golang julia swift-lang -y
 RUN dnf install gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel -y
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 ENV CHPL_VER=1.30.0
