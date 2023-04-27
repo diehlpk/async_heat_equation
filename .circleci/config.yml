@@ -29,8 +29,8 @@ jobs:
             - run: cd rust/monte && cargo build --release
             - run: cd rust/heat && cargo build --release
             - run: cd rust/heat_simd && cargo build --release
-            - run: cd python && python -c "import ast; ast.parse(open('monte.py').read())"
-            - run: cd python/heat && python -c "import ast; ast.parse(open('heat_ghosts.py').read())"
+            - run: cd python/heat && python -c "import ast; ast.parse(open('/heat/heat_ghosts.py').read())"
+            - run: cd python/heat && python -c "import ast; ast.parse(open('/heat/heat.py').read())"
             - run: cd go/heat  && go build main.go
 workflows:
   version: 2
