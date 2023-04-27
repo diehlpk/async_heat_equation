@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(heat
+project(heat_ghost
     DESCRIPTION  "1D heat equation solver in HPX"
     LANGUAGES CXX)
 
