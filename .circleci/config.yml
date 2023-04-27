@@ -32,6 +32,7 @@ jobs:
             - run: cd python/heat && python -c "import ast; ast.parse(open('heat_ghosts.py').read())"
             - run: cd python/heat && python -c "import ast; ast.parse(open('heat.py').read())"
             - run: cd go/heat  && go build main.go
+            - run: cd hpx/heat && cmake . && make
 workflows:
   version: 2
   build_and_deploy:
