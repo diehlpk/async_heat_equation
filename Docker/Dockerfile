@@ -25,7 +25,7 @@ ENV CHPL_VER=1.30.0
 RUN curl -LO https://github.com/chapel-lang/chapel/releases/download/${CHPL_VER}/chapel-${CHPL_VER}.tar.gz
 RUN tar xzf chapel-${CHPL_VER}.tar.gz
 WORKDIR chapel-${CHPL_VER}
-RUN source util/quickstart/setchplenv.bash && make -j4
+RUN source util/quickstart/setchplenv.bash && make -j2
 RUN ln -s "/chapel-${CHPL_VER}/bin/linux64-x86_64/chpl" /usr/local/bin/chpl
 ENV PATH="/root/.cargo/bin:${PATH}"
 ENV CHPL_GMP=none
