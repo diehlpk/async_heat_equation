@@ -62,8 +62,10 @@ public:
   void recv_ghosts() {
     //data[0] = left.get().get();
     //data[sz-1] = right.get().get();
-    left.get(&data[0]);
-    right.get(&data[sz-1]);
+    while(!left.get(&data[0]))
+      hpx::this_thread::yield();
+    while(!right.get(&data[sz-1]))
+      hpx::this_thread::yield();
   }
 
   void update() {
