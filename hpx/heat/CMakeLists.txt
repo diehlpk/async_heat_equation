@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
+set(CMAKE_CXX_STANDARD 17)
 
 project(heat_ghosts
     DESCRIPTION  "1D heat equation solver in HPX"
@@ -14,5 +15,3 @@ set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 find_package(HPX REQUIRED)
 
 add_hpx_executable(heat_ghosts SOURCES heat_ghosts.cxx)
-
-

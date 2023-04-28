@@ -52,5 +52,5 @@ proc main() {
   if data.size < 20 {
     writeln(data);
   }
-  writeln("chapel,",nx,",",nt,",",getenv('CHPL_RT_NUM_THREADS_PER_LOCALE'.c_str()):string,",",dt,",",dx,",",t.elapsed(),",0");
+  writeln("chapelng,",nx,",",nt,",",getenv('CHPL_RT_NUM_THREADS_PER_LOCALE'.c_str()):string,",",dt,",",dx,",",t.elapsed(),",0");
 }

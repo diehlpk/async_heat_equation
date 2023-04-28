@@ -79,8 +79,8 @@ public:
   void send_ghosts() {
     double d1 = data[1];
     double d2 = data[sz-2];
-    leftThread->right.set(HPX_MOVE(d1));
-    rightThread->left.set(HPX_MOVE(d2));
+    leftThread->right.set(std::move(d1));
+    rightThread->left.set(std::move(d2));
   }
 
   void run() {

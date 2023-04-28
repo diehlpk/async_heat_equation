@@ -16,13 +16,14 @@ SWIFT=1
 RUST=1
 GO=1
 CHAPEL=1
+CHAPEL_NOGHOSTS=1
 CXX=1
 JULIA=1
 CHARM=1
 HPX=1
 
 TIME=1000
-SIZE=100000
+SIZE=1000000
 
 CPUS=$(lscpu | grep 'CPU(s):' | cut -d: -f2 | sed 's/[ \t]//g')
 
@@ -85,6 +86,18 @@ then
     do 
         echo CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nx ${SIZE} --nt ${TIME}
         CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nx ${SIZE} --nt ${TIME} >> perfdata.csv
+    done
+fi
+
+
+if [ "${CHAPEL_NOGHOSTS}" == "1" ]
+then
+    echo
+    echo "RUNNING CHAPEL NOGHOSTS"
+    for i in $(seq 1 $CPUS)
+    do 
+        echo CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat --nx ${SIZE} --nt ${TIME}
+        CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat --nx ${SIZE} --nt ${TIME} >> perfdata.csv
     done
 fi
 

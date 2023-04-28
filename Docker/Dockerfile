@@ -14,40 +14,43 @@
 #  You should have received a copy of the GNU General Public License 
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-From fedora:37
+From fedora:36
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel python3-numpy vim hpx -y
+RUN dnf install g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel python3-numpy vim hpx automake libtool -y
+
+WORKDIR /
 
 # Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 RUN chmod 755 /root
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Chapel
 ENV CHPL_VER=1.30.0
-RUN curl -LO https://github.com/chapel-lang/chapel/releases/download/${CHPL_VER}/chapel-${CHPL_VER}.tar.gz
-RUN tar xzf chapel-${CHPL_VER}.tar.gz
-WORKDIR chapel-${CHPL_VER}
-RUN source util/quickstart/setchplenv.bash && make -j2
-RUN ln -s "/chapel-${CHPL_VER}/bin/linux64-x86_64/chpl" /usr/local/bin/chpl
-ENV PATH="/root/.cargo/bin:${PATH}"
 ENV CHPL_GMP=none
 ENV CHPL_HOME=/chapel-1.30.0
 ENV CHPL_MEM=cstdlib
 ENV CHPL_HOST_MEM=cstdlib
-ENV CHPL_TASKS=fifo
+ENV CHPL_TASKS=qthreads
 ENV CHPL_COMM=none
-ENV CHPL_LLVM=none
+ENV CHPL_LLVM=system
 ENV CHPL_RE2=none
+RUN curl -LO https://github.com/chapel-lang/chapel/releases/download/${CHPL_VER}/chapel-${CHPL_VER}.tar.gz
+RUN tar xzf chapel-${CHPL_VER}.tar.gz
+WORKDIR chapel-${CHPL_VER}
+RUN source util/setchplenv.bash && make -j2
+RUN ls -ld /chapel-${CHPL_VER}/bin/linux64-x86_64/chpl
+RUN ln -s "/chapel-${CHPL_VER}/bin/linux64-x86_64/chpl" /usr/local/bin/chpl
 WORKDIR /
 
 # Charm
-RUN  git clone https://github.com/UIUC-PPL/charm
+RUN  git clone --depth 1 https://github.com/UIUC-PPL/charm
 WORKDIR charm
 RUN ./build charm++ multicore-linux-x86_64 gcc --with-production
 
 # The Repo
 WORKDIR /
-RUN git clone https://github.com/diehlpk/async_heat_equation
+RUN git clone --depth 1 https://github.com/diehlpk/async_heat_equation
 WORKDIR async_heat_equation
