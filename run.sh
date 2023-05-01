@@ -12,7 +12,8 @@ GO=0
 CHAPEL=0
 CXX=0
 JULIA=0
-CHARM=1
+CHARM=0
+HPX=1
 
 TIME=1000
 SIZE=1000000
@@ -126,3 +127,13 @@ then
 fi
 
 
+if [ "${HPX}" == "1" ]
+then
+    cd hpx/heat/bin
+    for i in {40..0..2}
+    do 
+        ./heat_ghosts $i ${TIME} ${SIZE} --hpx:threads=$i 
+    done
+
+    cd ../../..
+fi
