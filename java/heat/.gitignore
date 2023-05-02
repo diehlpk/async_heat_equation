@@ -1,0 +1,7 @@
+.idea/
+gradlew.bat
+gradlew
+gradle/
+.gradle/
+target/
+perfdata.csv
