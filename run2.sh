@@ -21,6 +21,7 @@ CXX=1
 JULIA=1
 CHARM=1
 HPX=1
+JAVA=1
 
 TIME=1000
 SIZE=1000000
@@ -147,5 +148,16 @@ then
     do 
       echo '$CHARM_RUN' ./charm/heat/heat_ghosts +p $i $((2*${i})) ${TIME} ${SIZE}
       $CHARM_RUN ./charm/heat/heat_ghosts +p $i $((2*${i})) ${TIME} ${SIZE}
+    done
+fi
+
+if [ "${JAVA}" == "1" ]
+then
+    echo
+    echo "RUNNING JAVA"
+    for i in $(seq 1 $CPUS)
+    do 
+        echo java -cp ./java/heat/classes edu.lsu.cct.heat.Main $i ${TIME} ${SIZE}
+        java -cp ./java/heat/classes edu.lsu.cct.heat.Main $i ${TIME} ${SIZE}
     done
 fi
