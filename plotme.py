@@ -59,13 +59,60 @@ def fixname(s):
             return s
         s = n
 
+symbols = {
+    "java" : "D",
+    "c++" : "8",
+    "cxx" : "8",
+    "charm++" : "x",
+    "hpx" : "+",
+    "julia" : "v",
+    "python" : "*",
+    "swift" : "^",
+    "chapel" : ">",
+    "chapelng" : "<",
+    "go" : "s",
+    "rust" : "p"
+}
+
+colors = {
+    "java" : "darkgray",
+    "c++" : "dimgray",
+    "cxx" : "dimgray",
+    "charm++" : "gray",
+    "hpx" : "black",
+    "julia" : "black",
+    "python" : "black",
+    "swift" : "dimgray",
+    "chapel" : "gray",
+    "chapelng" : "darkgray",
+    "go" : "silver",
+    "rust" : "black"
+}
+
+lines = {
+    "java" : "-",
+    "c++" : "--",
+    "cxx" : ":",
+    "charm++" : "-",
+    "hpx" : "--",
+    "julia" : ":",
+    "python" : "-",
+    "swift" : "--",
+    "chapel" : ":",
+    "chapelng" : "-",
+    "go" : "--",
+    "rust" : ":"
+}
+
 for name in xdata:
     xv = np.asarray(xdata[name])
     yv = np.asarray(ydata[name])
     assert len(xv) == len(yv)
     fix = fixname(name)
-    p = plt.semilogy(xv,yv,'o',label=fix)
-    color=p[0].get_color()
+    symbol = symbols[name]
+    color = colors[name]
+    p = plt.semilogy(xv,yv,symbol,color=color,label=fix)
+    #color=p[0].get_color()
 
     def rt(x, k, p, o, o2, o3):
         return k*(1-p + p/x + o*np.log(x) + o2*np.sqrt(x)+o3*x)
@@ -103,7 +150,8 @@ for name in xdata:
         print()
         xv2 = np.asarray(range(1,round(1+max(xdata[name]))))
         yv2 = rt(xv2,*r[0])
-        plt.semilogy(xv2,yv2,'-',color=color)
+        line = lines[name]
+        plt.semilogy(xv2,yv2,line,color=color)
         #plt.semilogy(xv2,yv2,'-',label='fit '+fix,color=color)
 plt.legend()
 ax = plt.gca()
