@@ -5,7 +5,7 @@ TARGETS = go/heat/main \
 	swift/heat/heat_ghosts \
 	hpx/heat/build/bin/heat_ghosts \
 	charm/heat/heat_ghosts \
-	java/heat/heat_ghosts
+    java/heat/classes/edu/lsu/cct/heat/Main.class
 
 CHARMC=/charm/multicore-linux-x86_64-gcc/bin/charmc
 all : $(TARGETS)
@@ -31,5 +31,5 @@ hpx/heat/build/bin/heat_ghosts : hpx/heat/heat_ghosts.cxx
 	(cd hpx/heat && mkdir -p build && cd build && CMAKE_PREFIX_PATH=/usr/lib64/cmake/ cmake -DCMAKE_BUILD_TYPE=Release .. && $(MAKE))
 charm/heat/heat_ghosts : charm/heat/heat_ghosts.cxx
 	(cd charm/heat && $(CHARMC) heat_ghosts.ci && $(CHARMC) heat_ghosts.cxx -c++-option -std=c++17 -lstdc++fs -o heat_ghosts -O3 -march=native)
-java/heat/heat_ghosts : java/heat/src/main/java/edu/lsu/cct/heat/Main.java java/heat/src/main/java/edu/lsu/cct/heat/HeatImpl.java
-	(cd java/heat && javac -d classes/ src/main/java/edu/lsu/cct/heat/Main.java src/main/java/edu/lsu/cct/heat/HeatImpl.java)
+java/heat/classes/edu/lsu/cct/heat/Main.class : java/heat/src/main/java/edu/lsu/cct/heat/Main.java java/heat/src/main/java/edu/lsu/cct/heat/HeatImpl.java
+	(cd java/heat && javac -O -d classes/ src/main/java/edu/lsu/cct/heat/Main.java src/main/java/edu/lsu/cct/heat/HeatImpl.java)

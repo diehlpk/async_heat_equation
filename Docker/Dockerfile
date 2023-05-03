@@ -18,7 +18,7 @@ From fedora:36
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel python3-numpy vim hpx automake libtool -y
+RUN dnf install g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git cmake which diffutils llvm-devel clang clang-devel python3-numpy vim hpx automake libtool java-latest-openjdk-devel-1:20.0.0.0.36-1.rolling.fc36.x86_64 -y
 
 WORKDIR /
 
@@ -30,7 +30,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 # Chapel
 ENV CHPL_VER=1.30.0
 ENV CHPL_GMP=none
-ENV CHPL_HOME=/chapel-1.30.0
+ENV CHPL_HOME=/chapel-${CHPL_VER}
 ENV CHPL_MEM=cstdlib
 ENV CHPL_HOST_MEM=cstdlib
 ENV CHPL_TASKS=qthreads

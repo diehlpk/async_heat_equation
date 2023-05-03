@@ -60,8 +60,8 @@ then
     echo "RUNNING RUST"
     for i in $(seq 1 $CPUS)
     do 
-        echo ./rust/heat/target/release/heat $i ${TIME} ${SIZE}
-        ./rust/heat/target/release/heat $i ${TIME} ${SIZE}
+        echo ./rust/heat/target/release/heat_ghosts $i ${TIME} ${SIZE}
+        ./rust/heat/target/release/heat_ghosts $i ${TIME} ${SIZE}
     done
 fi
 
@@ -85,8 +85,8 @@ then
     # Deadlocks for 1
     for i in $(seq 2 $CPUS)
     do 
-        echo CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nx ${SIZE} --nt ${TIME}
-        CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nx ${SIZE} --nt ${TIME} >> perfdata.csv
+        echo CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nthreads $i --nx ${SIZE} --nt ${TIME}
+        CHPL_RT_NUM_THREADS_PER_LOCALE=$i ./chapel/heat/heat_ghosts --nthreads $i --nx ${SIZE} --nt ${TIME} >> perfdata.csv
     done
 fi
 
