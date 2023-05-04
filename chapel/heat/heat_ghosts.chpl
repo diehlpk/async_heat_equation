@@ -114,7 +114,7 @@ proc work(num:int) {
 proc main() {
   var t: stopwatch;
   t.start();
-  forall tno in 0..nthreads - 1 do {
+  coforall tno in 0..nthreads - 1 do {
     work(tno);
   }
   t.stop();
