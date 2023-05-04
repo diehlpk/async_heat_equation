@@ -4,6 +4,7 @@ import re
 #from math import round
 import sys
 import numpy
+from matplotlib.lines import Line2D
 
 if len(sys.argv)==2:
     file='-'+sys.argv[1]
@@ -104,6 +105,9 @@ lines = {
     "rust" : ":"
 }
 
+lineLabels = []
+labels = []
+
 for name in xdata:
     xv = np.asarray(xdata[name])
     yv = np.asarray(ydata[name])
@@ -111,8 +115,9 @@ for name in xdata:
     fix = fixname(name)
     symbol = symbols[name]
     color = colors[name]
-    p = plt.semilogy(xv,yv,symbol,color=color,label=fix)
-    #color=p[0].get_color()
+    labels.append(fix)
+    lineLabels.append(Line2D([0], [0], color=color, linewidth=3, linestyle='--', marker=symbol))
+    p = plt.semilogy(xv,yv,symbol,color=color)
 
     def rt(x, k, p, o, o2, o3):
         return k*(1-p + p/x + o*np.log(x) + o2*np.sqrt(x)+o3*x)
@@ -127,11 +132,11 @@ for name in xdata:
             print("Could not fit curve for:",name,e)
             continue
         k=r[0][0]
-        par=r[0][1]
+        pbar=r[0][1]
         o=r[0][2]
         o2=r[0][3]
         o3=r[0][4]
-        print("For ",name,": Parallel=","%.8g" % par," using ",len(xv)," run data pts.",sep='')
+        print("For ",name,": Parallel=","%.8g" % pbar," using ",len(xv)," run data pts.",sep='')
         overheads = 0
         if o > 1e-14:
             print("   Overhead log(N)=%.8g:" % o),
@@ -153,10 +158,10 @@ for name in xdata:
         line = lines[name]
         plt.semilogy(xv2,yv2,line,color=color)
         #plt.semilogy(xv2,yv2,'-',label='fit '+fix,color=color)
-plt.legend()
+plt.legend(lineLabels,labels,ncol=4,shadow=True,fancybox=True,loc='upper center', bbox_to_anchor=(0.5, -0.15))
 ax = plt.gca()
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-          fancybox=True, shadow=True, ncol=4)
+#ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+#          fancybox=True, shadow=True, ncol=4)
 plt.grid()
 plt.xlabel("#cores")
 plt.ylabel("Time [s]")
