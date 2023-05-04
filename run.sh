@@ -2,7 +2,8 @@
 
 source "$HOME/.cargo/env"
 CHARM_DIR=/work/diehlpk/Compile/medusa/charm/bin/
-JAVA_DIR=/work/diehlpk/Compile/all/jdk-20.0.1/bin
+#JAVA_DIR=/work/diehlpk/Compile/all/jdk-20.0.1/bin
+JAVA_DIR=/lustre/projects/diehl-group/heat/jdk-20.0.1/bin
 module load gcc/12.2.0
 module load python/3.10.5
 
