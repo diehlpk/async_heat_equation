@@ -4,20 +4,19 @@
 #  Distributed under the Boost Software License, Version 1.0. (See accompanying
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #using Distributed
+import Base.Threads;
 
 check_correctness = false
 
-ghosts = 1
-nx = parse(Int64,ARGS[3])        # number of nodes
-k = 0.4                      # heat transfer coefficient
-dt = 1.                      # time step
-dx = 1.                      # grid spacing
-nt = parse(Int64,ARGS[2])        # number of time steps
-nthreads = parse(Int64,ARGS[1])    # numnber of threads    
+const ghosts = 1
+const nx = parse(Int64,ARGS[3])        # number of nodes
+const k = 0.4                      # heat transfer coefficient
+const dt = 1.                      # time step
+const dx = 1.                      # grid spacing
+const nt = parse(Int64,ARGS[2])        # number of time steps
+const nthreads = parse(Int64,ARGS[1])    # numnber of threads    
 
-alp::Float64 = k*dt/(dx*dx)
-
-tx::Int64 = floor((2*ghosts+nx)/nthreads)
+const tx::Int64 = floor((2*ghosts+nx)/nthreads)
 
 #Base.@kwdef mutable struct Worker
 
@@ -27,12 +26,16 @@ hi::Int64 = tx * (num+1) + ghosts
 sz::Int64 = hi - lo
 
 #---- Start implement the queues---"
-qsize::Int64 = 12
+const qsize::Int64 = 12
 qarray = zeros(Float64,2*qsize*nthreads) 
 qhead = zeros(Int64,2*nthreads)
 qtail = zeros(Int64,2*nthreads)
-leftq = 1
-rightq = 0
+conds = Array{Threads.Condition,1}(undef,2*nthreads);
+for i in range(1,2*nthreads)
+  conds[i] = Threads.Condition()
+end
+const leftq = 1
+const rightq = 0
 
 function push_queue(left_right, threadno, val)
     qno = left_right + 2 * threadno 
@@ -40,7 +43,17 @@ function push_queue(left_right, threadno, val)
     idx = qno * qsize + t % qsize + 1
     #print("push: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
     qarray[idx] = val
+    diff = qtail[qno+1] - qhead[qno+1]
     qtail[qno+1] += 1
+    if diff == 0 
+      c = conds[qno+1]
+      lock(c)
+      qtail[qno+1] += 1
+      notify(c)
+      unlock(c)
+    else
+      qtail[qno+1] += 1
+    end
 end
 
 function pop_queue(left_right, threadno)
@@ -49,9 +62,14 @@ function pop_queue(left_right, threadno)
     idx = qno * qsize + h % qsize + 1
     #print("pop: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
     t = qtail[qno+1]
-    while h == t
-        sleep(0)
-        t = qtail[qno+1]
+    if h == t 
+      c = conds[qno+1]
+      lock(c)
+      while h == t
+          wait(c)
+          t = qtail[qno+1]
+      end
+      unlock(c)
     end
     val = qarray[idx]
     qhead[qno+1] += 1
@@ -96,7 +114,7 @@ function work(num)
         #print("Update: nt: ",nt," num: ",num,"\n")
         for i in range(2,sz-1)
             #print("Data i: ",i,"\n")
-            data[second][i] = data[first][i] + alp*(data[first][i+1] + data[first][i-1] - 2*data[first][i])
+            data[second][i] = data[first][i] + k*dt/(dx*dx)*(data[first][i+1] + data[first][i-1] - 2*data[first][i])
         end
         #print("Post Update: nt: ",nt," num: ",num,"\n")
         push_queue(rightq, im1, data[first][2])
@@ -138,4 +156,3 @@ end
 file = open(fn, "a")
 write(file, "julia"*","*string(nx)*","*string(nt)*","*string(nthreads)*","*string(dt)*","*string(dx)*","*string(totalTime)*","*string(0)*"\n")
 close(file)
-
