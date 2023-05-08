@@ -6,6 +6,9 @@
 #include <filesystem>
 #include <fstream>
 #include <assert.h>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 using std::size_t;
 
@@ -29,21 +32,36 @@ class Queue {
   static const size_t sz = 20;
   double data[sz];
   size_t head=0, tail=0;
+  std::mutex m;
+  std::condition_variable cv;
 
 public:
 
   void push(double d) {
     while(tail - head >= sz) {
+      // this should never happen
       std::this_thread::yield();
     }
-    data[tail++ % sz] = d;
+    size_t new_tail = tail + 1;
+    data[new_tail % sz] = d;
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    tail = new_tail;
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    if(head+1 == tail) {
+        std::unique_lock lk(m);
+        cv.notify_one();
+    }
   }
 
   double pop() {
-    while(head == tail) {
-      std::this_thread::yield();
+    if(head == tail) {
+      std::unique_lock lk(m);
+      cv.wait(lk,[this](){ bool b = this->head < this->tail; return b; });
     }
-    return data[head++ % sz];
+    double result = data[head % sz];
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    ++head;
+    return result;
   }
 };
 
@@ -60,6 +78,8 @@ public:
     std::thread t(std::bind(&Worker::run, this));
     this->swap(t);
   }
+  
+  Worker(Worker&& w) : lo(w.lo), hi(w.hi), sz(w.sz), data(w.data), data2(w.data2), leftThread(w.leftThread), rightThread(w.rightThread) {}
 
   Worker(size_t num_, size_t tx) : num(num_) {
     lo = tx * num;
@@ -77,7 +97,7 @@ public:
       data2.at(n) = 0.0;
     }
   }
-  Worker(Worker&&) noexcept = default;
+  //Worker(Worker&&) noexcept = default;
   ~Worker() {}
 
   void recv_ghosts() {
@@ -127,8 +147,7 @@ int main(int argc, char **argv) {
   std::vector<Worker> workers;
   size_t tx = (2*ghosts + nx)/threads;
   for(size_t th=0;th < threads;th++) {
-    Worker w(th, tx);
-    workers.emplace_back(std::move(w));
+    workers.emplace_back(Worker(th, tx));
   }
   for(size_t th=0;th < threads;th++) {
     size_t next = (th + 1) % threads;

@@ -43,7 +43,9 @@ function push_queue(left_right, threadno, val)
     idx = qno * qsize + t % qsize + 1
     #print("push: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
     qarray[idx] = val
+    Threads.atomic_fence()
     diff = qtail[qno+1] - qhead[qno+1]
+    Threads.atomic_fence()
     qtail[qno+1] += 1
     if diff == 0 
       c = conds[qno+1]

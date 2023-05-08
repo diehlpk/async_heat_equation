@@ -4,24 +4,23 @@ then
   curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 fi
 source ~/.cargo/env
+set -e
 make -f run2.mk
 
 CHARM_RUN=/charm/multicore-linux-x86_64-gcc/bin/charmrun
 source /root/.cargo/env
 
-set -e
-
-PYTHON=1
-SWIFT=1
-RUST=1
-GO=1
-CHAPEL=1
-CHAPEL_NOGHOSTS=1
-CXX=1
+PYTHON=0
+SWIFT=0
+RUST=0
+GO=0
+CHAPEL=0
+CHAPEL_NOGHOSTS=0
+CXX=0
 JULIA=1
-CHARM=1
-HPX=1
-JAVA=1
+CHARM=0
+HPX=0
+JAVA=0
 
 TIME=1000
 SIZE=1000000
