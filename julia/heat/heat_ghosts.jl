@@ -31,22 +31,22 @@ qarray = zeros(Float64,2*qsize*nthreads)
 qhead = zeros(Int64,2*nthreads)
 qtail = zeros(Int64,2*nthreads)
 conds = Array{Threads.Condition,1}(undef,2*nthreads);
+full = Array{Float64,1}(undef,nx);
 for i in range(1,2*nthreads)
   conds[i] = Threads.Condition()
 end
 const leftq = 1
 const rightq = 0
 
-function push_queue(left_right, threadno, val)
+function push_queue(num, n, left_right, threadno, val)
     qno = left_right + 2 * threadno 
     t = qtail[qno+1]
     idx = qno * qsize + t % qsize + 1
-    #print("push: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
+    #print("push num: ",num," n: ",n,": qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx," val=",val,"\n")
     qarray[idx] = val
     Threads.atomic_fence()
     diff = qtail[qno+1] - qhead[qno+1]
     Threads.atomic_fence()
-    qtail[qno+1] += 1
     if diff == 0 
       c = conds[qno+1]
       lock(c)
@@ -58,13 +58,12 @@ function push_queue(left_right, threadno, val)
     end
 end
 
-function pop_queue(left_right, threadno)
+function pop_queue(n, left_right, threadno)
     qno = left_right + 2 * threadno 
     h = qhead[qno+1]
     idx = qno * qsize + h % qsize + 1
-    #print("pop: qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx,"\n")
     t = qtail[qno+1]
-    if h == t 
+    while h == t 
       c = conds[qno+1]
       lock(c)
       while h == t
@@ -74,6 +73,7 @@ function pop_queue(left_right, threadno)
       unlock(c)
     end
     val = qarray[idx]
+    #print("pop num: ",threadno," n: ",n,": qno=",qno," left_right=",left_right," threadno=", threadno," nthreads=",nthreads," idx=",idx," val=",val,"\n")
     qhead[qno+1] += 1
     return val
 end
@@ -81,7 +81,6 @@ end
 #---- End implement the queues---"
 
 function work(num)
-    #print("Start work: ",num,"\n")
     first = 1
     second = 2
     lo::Int64 = tx*num
@@ -97,60 +96,48 @@ function work(num)
     ip1 = (num + 1) % nthreads
     im1 = (num + nthreads - 1) % nthreads
 
-    #print("Init work: ",num," sz: ",sz,"\n")
     for i in range(lo + off, lo + off + sz - 1)
-        #print("Init loop: ",num," i: ",i," i-lo: ",i-lo,"\n")
         data[first][i - lo] = i 
     end
-    #print("Post Init work: ",num,"\n")
 
     # send
-    push_queue(rightq, im1, data[first][2])
-    push_queue(leftq, ip1, data[first][sz-1])
-    #print("Pre loop: ",num,"\n")
-    for nt in range(1,nt)
-        #print("nt: ",nt," ",data[first],"\n")
-        data[first][1] = pop_queue(leftq, num)
-        data[first][sz] = pop_queue(rightq, num)
+    push_queue(num,-1,rightq, im1, data[first][2])
+    push_queue(num,-1,leftq, ip1, data[first][sz-1])
+    for n in range(0,nt-1)
+        data[first][1] = pop_queue(n, leftq, num)
+        data[first][sz] = pop_queue(n,rightq, num)
 
-        #print("Update: nt: ",nt," num: ",num,"\n")
         for i in range(2,sz-1)
-            #print("Data i: ",i,"\n")
             data[second][i] = data[first][i] + k*dt/(dx*dx)*(data[first][i+1] + data[first][i-1] - 2*data[first][i])
         end
-        #print("Post Update: nt: ",nt," num: ",num,"\n")
-        push_queue(rightq, im1, data[first][2])
-        push_queue(leftq, ip1, data[first][sz-1])
         # swap
         first = 3 - first
         second = 3 - second
+
+        push_queue(num,n,rightq, im1, data[first][2])
+        push_queue(num,n,leftq, ip1, data[first][sz-1])
     end
-    #print("End Evo\n")
-    data[first][1] = pop_queue(leftq, num)
-    data[first][sz] = pop_queue(rightq, num)
-    #print("Finis!",data[first],"\n")
+    data[first][1] = pop_queue(nt,leftq, num)
+    data[first][sz] = pop_queue(nt,rightq, num)
+    for i in range(2,sz-1)
+        full[i+lo] = data[first][i];
+    end
 end
 
 totalTime = @elapsed begin
-    #tasks = []
-    #for i in 0:nthreads-1
-    #    print("task: ",i+1)
-    #    push!(tasks,@spawnat i+1 work(i))
-    #end
-    #for th in tasks
-    #    wait(th)
-    #end
     Threads.@threads for i in 0:nthreads-1
         #println(i)
         work(i)
     end
 end
-#print("total time: ",totalTime,"\n")
+
+if nx <= 20
+  print("full:",full,"\n")
+end
 
 fn = "perfdata.csv"
 
 if isfile(fn) == false
-
     file = open(fn, "w")
     write(file, "lang,nx,nt,threads,dt,dx,total time,flops\n")
     close(file)
