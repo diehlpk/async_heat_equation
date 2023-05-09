@@ -43,7 +43,7 @@ public:
       std::this_thread::yield();
     }
     size_t new_tail = tail + 1;
-    data[new_tail % sz] = d;
+    data[tail % sz] = d;
     std::atomic_thread_fence(std::memory_order_seq_cst);
     tail = new_tail;
     std::atomic_thread_fence(std::memory_order_seq_cst);
@@ -54,9 +54,10 @@ public:
   }
 
   double pop() {
-    if(head == tail) {
+    while(head == tail) {
       std::unique_lock lk(m);
       cv.wait(lk,[this]()->bool { return this->head < this->tail; });
+      std::this_thread::yield();
     }
     double result = data[head % sz];
     std::atomic_thread_fence(std::memory_order_seq_cst);
