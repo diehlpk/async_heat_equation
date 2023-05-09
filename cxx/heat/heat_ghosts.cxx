@@ -56,7 +56,7 @@ public:
   double pop() {
     if(head == tail) {
       std::unique_lock lk(m);
-      cv.wait(lk,[this](){ bool b = this->head < this->tail; return b; });
+      cv.wait(lk,[this]()->bool { return this->head < this->tail; });
     }
     double result = data[head % sz];
     std::atomic_thread_fence(std::memory_order_seq_cst);
