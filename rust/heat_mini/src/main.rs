@@ -25,7 +25,6 @@ fn main() {
     println!("rust,{0},{1},{2},{3},{4},{5}", s.nx, s.nt, s.threads, DT, DX, elapsed.as_secs_f64());
 
     if nx <= 20 {
-        print!("Final grid (NX = {}): ", nx);
-        println!("{:?}", s.collect_space());
+        println!("Final grid (NX = {0}): {1:?}", nx, s.collect_space());
     }
 }
