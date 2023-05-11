@@ -27,6 +27,16 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 RUN chmod 755 /root
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+# HPX
+ENV HPX_VER=1.8.1
+RUN curl -LO https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/v${HPX_VER}.tar.gz
+RUN tar xzf hpx-${HPX_VER}.tar.gz
+WORKDIR hpx-${HPX_VER}
+RUN mkdir build && cd build
+RUN cmake -DHPX_WITH_NETWORKING=OFF ..
+RUN make -j 
+RUN make install
+
 # Chapel
 ENV CHPL_VER=1.30.0
 ENV CHPL_GMP=none

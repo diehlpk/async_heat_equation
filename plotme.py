@@ -72,7 +72,9 @@ symbols = {
     "chapel" : ">",
     "chapelng" : "<",
     "go" : "s",
-    "rust" : "p"
+    "rust" : "p",
+    "heat" : "x",
+    "heat_ghosts" : "p"
 }
 
 colors = {
@@ -87,7 +89,9 @@ colors = {
     "chapel" : "gray",
     "chapelng" : "darkgray",
     "go" : "silver",
-    "rust" : "black"
+    "rust" : "black",
+    "heat" : "black",
+    "heat_ghosts" : "gray"
 }
 
 lines = {
@@ -102,7 +106,9 @@ lines = {
     "chapel" : ":",
     "chapelng" : "-",
     "go" : "--",
-    "rust" : ":"
+    "rust" : ":",
+    "heat" : "-",
+    "heat_ghosts" : "--"
 }
 
 lineLabels = []
