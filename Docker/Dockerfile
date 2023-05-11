@@ -18,7 +18,7 @@ From fedora:36
 
 RUN dnf update -y
 RUN dnf groupinstall "Development Tools" -y
-RUN dnf install g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git hwloc-devel boost-devel jemalloc-devel cmake which diffutils llvm-devel clang clang-devel python3-numpy vim  automake libtool java-latest-openjdk-devel-1:20.0.0.0.36-1.rolling.fc36.x86_64 -y
+RUN dnf install wget g++ python golang julia swift-lang gcc gcc-c++ m4 perl python3 python3-devel bash make gawk git hwloc-devel boost-devel jemalloc-devel cmake which diffutils llvm-devel clang clang-devel python3-numpy vim  automake libtool java-latest-openjdk-devel-1:20.0.0.0.36-1.rolling.fc36.x86_64 -y
 
 WORKDIR /
 
@@ -29,7 +29,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 # HPX
 ENV HPX_VER=1.8.1
-RUN curl -LO https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/${HPX_VER}.tar.gz
+RUN wget https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/${HPX_VER}.tar.gz
 RUN tar xzf hpx-${HPX_VER}.tar.gz
 WORKDIR hpx-${HPX_VER}
 RUN mkdir build && cd build
