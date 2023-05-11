@@ -29,7 +29,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 # HPX
 ENV HPX_VER=1.8.1
-RUN curl -LO https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/v${HPX_VER}.tar.gz
+RUN curl -LO https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/${HPX_VER}.tar.gz
 RUN tar xzf hpx-${HPX_VER}.tar.gz
 WORKDIR hpx-${HPX_VER}
 RUN mkdir build && cd build
