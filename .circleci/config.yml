@@ -33,7 +33,7 @@ jobs:
             - run: cd python/heat && python -c "import ast; ast.parse(open('heat.py').read())"
             - run: cd go/heat  && go build main.go
             - run: cd hpx/heat && cmake . && make
-    docker:
+    build_image:
           filters:
             branches:
               only:
