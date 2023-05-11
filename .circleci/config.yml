@@ -33,11 +33,34 @@ jobs:
             - run: cd python/heat && python -c "import ast; ast.parse(open('heat.py').read())"
             - run: cd go/heat  && go build main.go
             - run: cd hpx/heat && cmake . && make
+    docker:
+          machine:
+            image: ubuntu-2004:202111-02
+          environment:
+            IMAGE_FOLDER_NAME: Docker
+            IMAGE_NAME: diehlpk/monte-carlo-codes:latest 
+          steps:
+            - checkout
+            - run:
+                name: Building Docker Image
+                command: |
+                    docker build --network host -t ${IMAGE_NAME} ${IMAGE_FOLDER_NAME}
+                    docker images
+            - deploy:
+                command: |
+                        docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+                        docker push ${IMAGE_NAME}
 workflows:
   version: 2
-  build_and_deploy:
+  build:
     jobs:
       - build:
           filters:
             branches:
               ignore: gh-pages
+  docker:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: docker
