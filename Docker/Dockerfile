@@ -30,7 +30,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 # HPX
 ENV HPX_VER=1.8.1
 RUN wget https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/${HPX_VER}.tar.gz
-RUN tar xzf hpx-${HPX_VER}.tar.gz
+RUN tar xzf ${HPX_VER}.tar.gz
 WORKDIR hpx-${HPX_VER}
 RUN mkdir build && cd build
 RUN cmake -DHPX_WITH_NETWORKING=OFF ..
