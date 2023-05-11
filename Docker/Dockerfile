@@ -32,10 +32,7 @@ ENV HPX_VER=1.8.1
 RUN wget https://github.com/STEllAR-GROUP/hpx/archive/refs/tags/${HPX_VER}.tar.gz
 RUN tar xzf ${HPX_VER}.tar.gz
 WORKDIR hpx-${HPX_VER}
-RUN mkdir build && cd build
-RUN cmake -DHPX_WITH_NETWORKING=OFF ..
-RUN make -j 
-RUN make install
+RUN mkdir build && cd build &&  cmake -DHPX_WITH_NETWORKING=OFF .. && make -j 2 && make install
 
 # Chapel
 ENV CHPL_VER=1.30.0
