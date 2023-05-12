@@ -5,7 +5,7 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 import Foundation
 
-let biSema = DispatchSemaphore(value: 1)
+//let biSema = DispatchSemaphore(value: 1)
 
 let start = Date()
 
