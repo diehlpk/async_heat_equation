@@ -52,7 +52,7 @@ jobs:
                     docker images
             - deploy:
                 command: |
-                        docker login -u "$DOCKER_USER" -u "$DOCKER_PASS"
+                        docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
                         docker push ${IMAGE_NAME}
 
 
