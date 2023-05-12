@@ -22,6 +22,12 @@ RUN dnf install wget gperftools-devel g++ python golang swift-lang gcc gcc-c++ m
 
 WORKDIR /
 
+# Julia
+RUN curl -LO https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.0-linux-x86_64.tar.gz
+RUN tar zxf julia-1.9.0-linux-x86_64.tar.gz 
+RUN ls -ld julia-1.9.0/bin/julia
+RUN ln -s "julia-1.9.0/bin/julia" /usr/local/bin/julia
+
 # Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 RUN chmod 755 /root
