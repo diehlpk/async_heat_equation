@@ -39,6 +39,7 @@ struct Worker {
     num = p_num
     lo = tx * num
     hi = (tx + 1) * (num)
+  
 
     space = [
       UnsafeMutableBufferPointer<Double>.allocate(capacity: num + 2),
@@ -132,10 +133,10 @@ for t in 0...(nt - 1) {
 
           if threads > 1 {
             if p == 0 {
-              workerPool[p].receiv_ghost(workerPool[threads - 1], workerPool[1], t)
+              workerPool[p].receiv_ghost(workerPool[workerPool.count-1], workerPool[1], t)
             }
 
-            else if p == threads - 1 {
+            else if p == workerPool.count-1 {
 
                workerPool[p].receiv_ghost(workerPool[p - 1], workerPool[0], t)
 
@@ -151,10 +152,10 @@ for t in 0...(nt - 1) {
 
           if threads > 1 {
             if p == 0 {
-               workerPool[p].send_ghost(workerPool[threads - 1], workerPool[1], t)
+               workerPool[p].send_ghost(workerPool[workerPool.count-1], workerPool[1], t)
             }
 
-            else if p == threads - 1 {
+            else if p == workerPool.count-1 {
 
               workerPool[p].send_ghost(workerPool[p - 1], workerPool[0], t)
 
@@ -180,6 +181,33 @@ for t in 0...(nt - 1) {
       }
 
     })
+
+}
+
+// Assmeble the grid
+var result = Array(repeating: 0.0, count: nx)
+
+var index = 0
+for w in workerPool{
+
+  
+  
+  for i in 1...w.space[0].count-2
+  {
+    result[index] = w.space[nt-1 % 2][i]
+    index = index + 1
+    
+  }
+
+}
+
+// print grid for validation
+if nx < 20 {
+
+for i in 0...nx-1
+{
+  print(result[i])
+}
 
 }
 
