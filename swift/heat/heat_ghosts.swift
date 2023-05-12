@@ -194,7 +194,7 @@ for w in workerPool{
   
   for i in 1...w.space[0].count-2
   {
-    result[index] = w.space[nt-1 % 2][i]
+    result[index] = w.space[nt % 2][i]
     index = index + 1
     
   }
