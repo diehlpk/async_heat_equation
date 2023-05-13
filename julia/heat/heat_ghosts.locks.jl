@@ -42,13 +42,17 @@ function push_queue(num, n, left_right, threadno, val)
     qno = left_right + 2 * threadno 
     t = qtail[qno+1]
     h = qhead[qno+1]
-    while t - h >= qsize
-      h = qhead[qno+1]
-    end
     idx = qno * qsize + t % qsize + 1
     qarray[idx] = val
     Threads.atomic_fence()
     qtail[qno + 1] = t + 1
+    Threads.atomic_fence()
+    if qhead[qno+1] == t
+      c = conds[qno+1]
+      lock(c)
+      notify(c)
+      unlock(c)
+    end
 end
 
 function pop_queue(n, left_right, threadno)
@@ -56,7 +60,14 @@ function pop_queue(n, left_right, threadno)
     h = qhead[qno+1]
     t = qtail[qno+1]
     while h == t 
+      c = conds[qno+1]
+      lock(c)
       t = qtail[qno+1]
+      while h == t
+          wait(c)
+          t = qtail[qno+1]
+      end
+      unlock(c)
     end
     idx = qno * qsize + h % qsize + 1
     val = qarray[idx]
