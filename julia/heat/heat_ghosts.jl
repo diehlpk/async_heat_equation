@@ -4,9 +4,6 @@
 #  Distributed under the Boost Software License, Version 1.0. (See accompanying
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #using Distributed
-import Base.Threads;
-
-check_correctness = false
 
 const ghosts = 1
 const nx = parse(Int64,ARGS[3])        # number of nodes
@@ -30,11 +27,7 @@ const qsize::Int64 = 12
 qarray = zeros(Float64,2*qsize*nthreads) 
 qhead = zeros(Int64,2*nthreads)
 qtail = zeros(Int64,2*nthreads)
-conds = Array{Threads.Condition,1}(undef,2*nthreads);
 full = Array{Float64,1}(undef,nx);
-for i in range(1,2*nthreads)
-  conds[i] = Threads.Condition()
-end
 const leftq = 1
 const rightq = 0
 
