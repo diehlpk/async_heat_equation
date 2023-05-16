@@ -1,11 +1,32 @@
-- name: cff-validator
-  # You may pin to the exact commit or the version.
-  # uses: dieghernan/cff-validator@dcbd6c3f0c0d18157fe18d6ba1c12160551fb640
-  uses: dieghernan/cff-validator@v2.3
-  with:
-    # Path to .cff file to be validated. By default it selects a CITATION.cff file on the root of the repository.
-    citation-path: # optional, default is CITATION.cff
-    # The version of the cache, change this from the default (1) to start over with a fresh cache.
-    cache-version: # optional, default is 1
-    # If "true" download and install R during the setup. If "false" use the existing installation in the GitHub Action image,
-    install-r: # optional
+# Copyright (c) 2021 Patrick Diehl
+#
+# SPDX-License-Identifier: BSL-1.0
+# Distributed under the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+on:
+  pull_request:
+    paths:
+      - CITATION.cff
+  workflow_dispatch:
+
+name: CITATION.cff
+jobs:
+  Validate-CITATION-cff:
+    runs-on: ubuntu-latest
+    name: Validate CITATION.cff
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      RSPM: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # This is needed for workflows running on
+      # ubuntu-20.04 or later
+      - name: Install V8
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y libv8-dev
+      - name: Validate CITATION.cff
+        uses: dieghernan/cff-validator@main
