@@ -10,7 +10,7 @@ authors:
     given-names: Max
   - family-names: Corrado 
     given-names: Jeremiah
-title: diehlpk/async_heat_equation: Initial release
+title: "Initial release"
 version: v1.0.0
 date-released: 2023-05-16
 license: BSL-1.0
