@@ -10,6 +10,14 @@ import re
 import sys
 import numpy
 from matplotlib.lines import Line2D
+import matplotlib.pyplot as plt
+
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Helvetica",
+    "font.size": 18
+})
+
 
 if len(sys.argv)==2:
     file='-'+sys.argv[1]
@@ -53,7 +61,6 @@ with open('perfdata'+file+'.csv','r',newline='') as cfd:
         xdata[name] += [nthreads]
         ydata[name] += [float(row[6])]
 
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit as cf
 
@@ -174,7 +181,7 @@ ax = plt.gca()
 #ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
 #          fancybox=True, shadow=True, ncol=4)
 plt.grid()
-plt.xlabel("#cores")
+plt.xlabel("\#cores")
 plt.ylabel("Time [s]")
 plt.title("nx="+nx+" and nt="+nt)
 plt.savefig('plot'+file+'.pdf',bbox_inches='tight')
