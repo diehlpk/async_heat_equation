@@ -6,6 +6,8 @@
 #using DataStructures
 #using Distributed
 
+using Polyester
+using BenchmarkTools
 include("../util.jl")
 
 workers = Threads.nthreads()
@@ -28,19 +30,17 @@ function init_space(nx)
     return space
 end
 
-
 function benchmark(nt, space, nthreads, nx, alpha)
     @inbounds for t in range(1, nt)
         current = space[t % 2+1]
         future = space[(t+1) % 2+1]
 
-        Threads.@threads for i in 0:nthreads-1
+        Polyester.@batch for i in 0:nthreads-1
             work(future,current,i,nthreads,nx,alpha)
         end
     end
     nothing
 end
-using BenchmarkTools
 totalTime = @belapsed benchmark($nt, space, $nthreads, $nx, $alpha) setup=(space=init_space($nx))
 
 fn = "perfdata.csv"
