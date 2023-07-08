@@ -6,7 +6,7 @@ end
 function work(future, current, p, threads, nx, alpha)
     len = cld(nx, nthreads)
     start = p * len + 1 
-    last = minimum((p+1) * len, nx)
+    last = min((p+1) * len, nx)
 
     if p == threads-1
         last = nx 
