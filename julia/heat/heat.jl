@@ -6,7 +6,7 @@
 #using DataStructures
 #using Distributed
 
-include("util.jl")
+include("../util.jl")
 
 workers = Threads.nthreads()
 
