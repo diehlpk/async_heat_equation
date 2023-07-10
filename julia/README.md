@@ -11,8 +11,8 @@ julia --project -e "using Pkg; Pkg.instantiate()"
 ## Heat
 
 ```bash
-nthreads=4
+nthreads=8
 timesteps=1000
-nodes=1024
+nodes=1000000
 julia --project --threads=$nthreads heat/heat.jl $nthreads $timesteps $nodes
 ```
