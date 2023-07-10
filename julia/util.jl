@@ -13,13 +13,16 @@ function work(future, current, p, threads, nx, alpha)
     end
 
     n = length(current)
-    @inbounds @simd for i in start:last
-        left_index = (i-2+n) % n + 1
-        right_index = i % n + 1
-        future[i] = heat(current[left_index],
-                         current[i],
-                         current[right_index],
+    left_value = current[(start-2+n) % n + 1]
+    right_value = current[start]
+    @inbounds for i in start:last
+        middle_value = right_value
+        right_value = current[i % n + 1]
+        future[i] = heat(left_value,
+                         middle_value,
+                         right_value,
                          alpha)
+        left_value = middle_value
     end
     nothing
 end
