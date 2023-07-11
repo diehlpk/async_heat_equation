@@ -6,34 +6,42 @@
 #using DataStructures
 #using Distributed
 
-include("util.jl")
+using Polyester
+using BenchmarkTools
+include("../util.jl")
 
 workers = Threads.nthreads()
 
-nx = parse(Int64,ARGS[3])        # number of nodes
-k = 0.4                      # heat transfer coefficient
-dt = 1.                      # time step
-dx = 1.                      # grid spacing
-alp = k*dt/(dx*dx)             # alpha
-nt = parse(Int64,ARGS[2])        # number of time steps
-nthreads = parse(Int64,ARGS[1])    # numnber of threads  
+nx = parse(Int64,ARGS[3])       # number of nodes
+k = 0.4                         # heat transfer coefficient
+dt = 1.0                        # time step
+dx = 1.0                        # grid spacing
+alpha = k*dt/(dx*dx)            # alpha
+nt = parse(Int64,ARGS[2])       # number of time steps
+nthreads = parse(Int64,ARGS[1]) # number of threads  
 
-space = [zeros(nx), zeros(nx)]
-
-for i in range(1, nx)
-    space[1][i] = i
+if nthreads > workers
+    error("Requested $nthreads, but only $workers are available. Start julia with more threads via `julia --threads=X`")
 end
 
-totalTime = @elapsed begin
-    for t in range(1, nt)
+
+function init_space(nx)
+    space = [collect(1:nx), zeros(nx)]
+    return space
+end
+
+function benchmark(nt, space, nthreads, nx, alpha)
+    @inbounds for t in range(1, nt)
         current = space[t % 2+1]
         future = space[(t+1) % 2+1]
 
-        Threads.@threads for i in 0:nthreads-1
-            work(future,current,i,nthreads,nx,alp)
+        Polyester.@batch for i in 0:nthreads-1
+            work(future,current,i,nthreads,nx,alpha)
         end
     end
+    nothing
 end
+totalTime = @belapsed benchmark($nt, space, $nthreads, $nx, $alpha) setup=(space=init_space($nx))
 
 fn = "perfdata.csv"
 
