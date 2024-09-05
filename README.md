@@ -9,3 +9,7 @@ since I read a lot about them. I mostly use C++ and Python for my research. In t
 small code to estimate Pi using the Monte Carlo method.
 
 Next, we implement a solver for the one-dimensional heat eqaution using tasks and asynchronous programming. 
+
+### References
+
+* Diehl, P., Morris, M., Brandt, S.R., Gupta, N., Kaiser, H. (2024). Benchmarking the Parallel 1D Heat Equation Solver in Chapel, Charm++, C++, HPX, Go, Julia, Python, Rust, Swift, and Java. In: Zeinalipour, D., et al. Euro-Par 2023: Parallel Processing Workshops. Euro-Par 2023. Lecture Notes in Computer Science, vol 14352. Springer, Cham. [10.1007/978-3-031-48803-0_11](https://doi.org/10.1007/978-3-031-48803-0_11), [Preprint](https://arxiv.org/abs/2307.01117)
