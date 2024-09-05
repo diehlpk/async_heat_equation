@@ -1,4 +1,4 @@
-## Asynchronous programming with tasks
+## Benchmarking the Parallel 1D Heat Equation Solver in Chapel, Charm++, C++, HPX, Go, Julia, Python, Rust, Swift, and Java 
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b3f6fa94ac1144d6a9468da4e55b111d)](https://www.codacy.com/gh/diehlpk/async_heat_equation/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=diehlpk/async_heat_equation&amp;utm_campaign=Badge_Grade) [![link](https://circleci.com/gh/diehlpk/async_heat_equation/tree/main.svg?style=shield)](https://circleci.com/gh/diehlpk/async_heat_equation/tree/main) [![DOI](https://zenodo.org/badge/429990324.svg)](https://zenodo.org/badge/latestdoi/429990324)
 
